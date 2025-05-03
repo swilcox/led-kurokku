@@ -1,0 +1,59 @@
+[project]
+name = "led-kurokku"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "swilcox", email = "steven@wilcoxzone.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1.8",
+    "pydantic>=2.11.3",
+    "redis>=5.2.1",
+]
+
+[project.scripts]
+led-kurokku = "led_kurokku.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "pytest-cov>=5.0.0",
+]
+
+[project.optional-dependencies]
+rpi = [
+    "rpi-gpio>=0.7.1",
+]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+addopts = "--cov=led_kurokku --cov-report=term-missing:skip-covered"
+
+[tool.coverage.run]
+source = ["led_kurokku"]
+omit = [
+    "*/temperature.py",  # Omit temperature-related functionality
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
