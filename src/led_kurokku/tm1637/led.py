@@ -1,11 +1,13 @@
+import os
 import time
 
 from RPi import GPIO
 
 from .base_driver import BaseDriver
 
-CLK_PIN = 23  # GPIO23
-DIO_PIN = 24  # GPIO24
+# Allow GPIO pins to be configured via environment variables
+CLK_PIN = int(os.environ.get("CLK_PIN", 23))  # GPIO23 by default
+DIO_PIN = int(os.environ.get("DIO_PIN", 24))  # GPIO24 by default
 
 # TM1637 commands
 ADDR_AUTO = 0x40
