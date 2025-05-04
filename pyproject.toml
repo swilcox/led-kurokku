@@ -39,7 +39,6 @@ addopts = "--cov=led_kurokku --cov-report=term-missing:skip-covered"
 [tool.coverage.run]
 source = ["led_kurokku"]
 omit = [
-    "*/temperature.py",  # Omit temperature-related functionality
     "*/tests/*",
     "*/__pycache__/*",
     "*/site-packages/*"

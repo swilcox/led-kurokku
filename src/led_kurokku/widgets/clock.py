@@ -28,16 +28,28 @@ class ClockWidget(DisplayWidget):
         Display method to be overridden by subclasses.
         This method should contain the logic to display the widget's content.
         """
-        # TODO : configurable sleep/refresh interval
-        # TODO : configurable colon blink rate
 
         while self.okay_to_display():
             # Display the current time
-            for colon in [True, False]:
+            now = datetime.now()
+            if not self.config.use_24_hour_format and now.hour >= 12:
+                # double blink for PM
+                colon_list = [
+                    [True, .15],
+                    [False, .2],
+                    [True, .15],
+                    [False, .5],
+                ]
+            else:
+                colon_list = [
+                    [True, .5],
+                    [False, .5],
+                ]
+            for colon, timing in colon_list:
                 hours = datetime.now().hour
                 minutes = datetime.now().minute
                 if not self.config.use_24_hour_format:
                     hours = _convert_to_12_hour_format(hours)
                 self.tm.show_time(hours, minutes, colon=colon)
-                if await self._sleep_and_check_stop(0.5):
+                if await self._sleep_and_check_stop(timing):
                     break
