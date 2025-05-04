@@ -1,7 +1,10 @@
 import asyncio
+import atexit
 from dataclasses import dataclass
 import logging
 import os
+import signal
+import sys
 from typing import Annotated
 
 import click
@@ -32,6 +35,34 @@ async def event_loop(force_console=False):
         await asyncio.gather(*tasks)  # Run tasks concurrently
 
 
+def cleanup_gpio():
+    """
+    Clean up GPIO pins on application exit.
+    This function will be called when the application exits.
+    """
+    try:
+        # Only import GPIO module if it's available
+        import importlib.util
+        if importlib.util.find_spec("RPi") and importlib.util.find_spec("RPi.GPIO"):
+            from RPi import GPIO
+            GPIO.cleanup()
+            logging.info("GPIO pins cleaned up")
+    except Exception as e:
+        logging.error(f"Error cleaning up GPIO: {e}")
+
+
+def setup_signal_handlers():
+    """Set up signal handlers for graceful shutdown"""
+    def signal_handler(sig, frame):
+        logging.info(f"Received signal {sig}, shutting down...")
+        cleanup_gpio()
+        sys.exit(0)
+    
+    # Register signal handlers for common termination signals
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+
 @click.command()
 @click.option('--debug', is_flag=True, default=False)
 @click.option('--console', is_flag=True, default=False)
@@ -47,7 +78,20 @@ def main(debug, console, log_file):
     setup_logging(level=log_level, filename=log_file)
     logger = logging.getLogger(__name__)
     logger.info("Starting led-kurokku application")
-    asyncio.run(event_loop(force_console=console))
+    
+    # Register cleanup functions
+    setup_signal_handlers()
+    atexit.register(cleanup_gpio)
+    
+    try:
+        asyncio.run(event_loop(force_console=console))
+    except KeyboardInterrupt:
+        logger.info("Application interrupted by user")
+    except Exception as e:
+        logger.exception(f"Application error: {e}")
+    finally:
+        # Make sure GPIO is cleaned up, even if we failed to register the signal handlers
+        cleanup_gpio()
 
 
 if __name__ == "__main__":

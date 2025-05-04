@@ -9,6 +9,9 @@ from .base_driver import BaseDriver
 CLK_PIN = int(os.environ.get("CLK_PIN", 23))  # GPIO23 by default
 DIO_PIN = int(os.environ.get("DIO_PIN", 24))  # GPIO24 by default
 
+# Disable GPIO warnings to prevent the "channel already in use" warnings
+GPIO.setwarnings(False)
+
 # TM1637 commands
 ADDR_AUTO = 0x40
 ADDR_FIXED = 0x44
@@ -23,6 +26,13 @@ class LedDriver(BaseDriver):
         self.dio_pin = dio_pin
         self._brightness = brightness
         self._driver_name = "LED"
+        
+        # Ensure pins are cleaned up before setting them up again
+        try:
+            GPIO.cleanup([self.clk_pin, self.dio_pin])
+        except:
+            pass
+        
         # Set up GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.clk_pin, GPIO.OUT)
@@ -33,6 +43,7 @@ class LedDriver(BaseDriver):
     def __del__(self):
         """Clean up GPIO on object destruction"""
         try:
+            # Only clean up our specific pins to avoid conflicts with other GPIO users
             GPIO.cleanup([self.clk_pin, self.dio_pin])
         except:
             pass
