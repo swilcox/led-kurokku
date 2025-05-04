@@ -25,7 +25,7 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - TZ=America/New_York  # Set your timezone here
+    # - TZ=America/New_York  # Optionally, manually set your timezone here
     volumes:
       - /etc/localtime:/etc/localtime:ro  # Mount host timezone
       - /etc/timezone:/etc/timezone:ro    # Mount host timezone info
