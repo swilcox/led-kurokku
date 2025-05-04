@@ -4,6 +4,13 @@ The over-powered LED clock for raspberry pis and the TM1637 LED Display.
 
 ## Overview
 
+LED-Kurokku is a versatile system for controlling TM1637 LED displays with multiple widgets, automated brightness control, and weather integration. The system consists of:
+
+1. **led-kurokku**: Core application that controls the LED display
+2. **kurokku-cli**: Command-line tool for managing multiple LED-Kurokku instances
+
+See the [Architecture Document](ARCHITECTURE.md) for a detailed system diagram and explanation of how the components work together.
+
 The clock can be configured to show various widgets at specific intervals.
 
 Widget types:
@@ -64,6 +71,11 @@ Or you can choose to use the virtual or real display but also log debug level ou
   * `message` - string message to display
   * `display_duration` - number of seconds to display
 
+#### Weather Data
+
+* `kurokku:weather:temp:*` - weather temperature data (e.g., "72*F")
+* `kurokku:weather:alert:*` - weather alerts from NOAA
+
 #### Messages
 
 * `*` - any key (specified key name in the `dynamic_source` field of a `message` widget)
@@ -79,3 +91,14 @@ Or you can choose to use the virtual or real display but also log debug level ou
 ### Example Configuration
 
 *TODO:* example configuration
+
+## CLI Tool
+
+The `kurokku-cli` tool provides a way to manage multiple LED-Kurokku instances. See [README-cli.md](README-cli.md) for detailed usage instructions.
+
+Key features:
+- Instance management for multiple LED-Kurokku displays
+- Configuration management using YAML files
+- Alert sending with customizable display duration
+- Weather data integration with automatic brightness adjustment
+- Template management for reusable configurations
