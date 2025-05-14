@@ -1,31 +1,23 @@
-from typing import List, Optional
+from typing import Annotated
 import os
 import json
 from pathlib import Path
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field
 
 
 class KurokkuInstance(BaseModel):
     """Configuration for a single LED-Kurokku instance."""
-    
-    name: str
-    host: str
+
+    name: Annotated[
+        str, Field(min_length=1, description="Unique name for the instance")
+    ]
+    host: Annotated[
+        str, Field(min_length=1, description="Host address of the Redis server")
+    ]
     port: int = 6379
     description: str = ""
-    
-    @validator('name')
-    def name_must_be_valid(cls, v):
-        if not v or not v.strip():
-            raise ValueError('name cannot be empty')
-        return v.strip()
-    
-    @validator('host')
-    def host_must_be_valid(cls, v):
-        if not v or not v.strip():
-            raise ValueError('host cannot be empty')
-        return v.strip()
-    
+
     def redis_url(self) -> str:
         """Return the Redis URL for this instance."""
         return f"redis://{self.host}:{self.port}"
@@ -33,31 +25,34 @@ class KurokkuInstance(BaseModel):
 
 class KurokkuRegistry(BaseModel):
     """Registry of all LED-Kurokku instances."""
-    
-    instances: List[KurokkuInstance] = []
-    
+
+    instances: Annotated[
+        list[KurokkuInstance],
+        Field(description="List of Kurokku instances", default_factory=list),
+    ]
+
     def add_instance(self, instance: KurokkuInstance) -> None:
         """Add an instance to the registry."""
         # Check if an instance with the same name already exists
         if any(i.name == instance.name for i in self.instances):
             raise ValueError(f"Instance with name '{instance.name}' already exists")
-        
+
         self.instances.append(instance)
-    
-    def remove_instance(self, name: str) -> Optional[KurokkuInstance]:
+
+    def remove_instance(self, name: str) -> KurokkuInstance | None:
         """Remove an instance from the registry."""
         for i, instance in enumerate(self.instances):
             if instance.name == name:
                 return self.instances.pop(i)
         return None
-    
-    def get_instance(self, name: str) -> Optional[KurokkuInstance]:
+
+    def get_instance(self, name: str) -> KurokkuInstance | None:
         """Get an instance by name."""
         for instance in self.instances:
             if instance.name == name:
                 return instance
         return None
-    
+
     def update_instance(self, name: str, new_instance: KurokkuInstance) -> bool:
         """Update an existing instance."""
         for i, instance in enumerate(self.instances):
@@ -77,10 +72,10 @@ def get_registry_path() -> Path:
 def load_registry() -> KurokkuRegistry:
     """Load the registry from disk."""
     registry_path = get_registry_path()
-    
+
     if not registry_path.exists():
         return KurokkuRegistry()
-    
+
     try:
         with open(registry_path, "r") as f:
             data = json.load(f)
@@ -94,6 +89,6 @@ def load_registry() -> KurokkuRegistry:
 def save_registry(registry: KurokkuRegistry) -> None:
     """Save the registry to disk."""
     registry_path = get_registry_path()
-    
+
     with open(registry_path, "w") as f:
         f.write(registry.model_dump_json())

@@ -25,6 +25,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "fakeredis>=2.28.1",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
     "pytest-cov>=5.0.0",

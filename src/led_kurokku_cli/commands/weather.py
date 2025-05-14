@@ -8,12 +8,7 @@ import os
 import sys
 from typing import Optional
 
-from ..models.weather import (
-    WeatherConfig, 
-    WeatherLocation, 
-    load_weather_config, 
-    save_weather_config
-)
+from ..models.weather import WeatherConfig, WeatherLocation
 from ..services.weather_service import run_weather_service
 
 
@@ -26,7 +21,7 @@ def weather():
 @weather.command("locations")
 def list_locations():
     """List all configured weather locations."""
-    config = load_weather_config()
+    config = WeatherConfig.load()
     
     if not config.locations:
         click.echo("No weather locations configured.")
@@ -47,7 +42,7 @@ def list_locations():
 @click.option("--display-name", "-d", help="Display name for the location")
 def add_location(name: str, lat: float, lon: float, display_name: Optional[str]):
     """Add a new weather location."""
-    config = load_weather_config()
+    config = WeatherConfig.load()
     
     # Check if location with this name already exists
     if any(l.name == name for l in config.locations):
@@ -68,7 +63,7 @@ def add_location(name: str, lat: float, lon: float, display_name: Optional[str])
     
     # Add the location to the configuration
     config.locations.append(location)
-    save_weather_config(config)
+    config.save()
     
     click.echo(f"Added location '{location.display_name}'.")
 
@@ -77,13 +72,13 @@ def add_location(name: str, lat: float, lon: float, display_name: Optional[str])
 @click.argument("name")
 def remove_location(name: str):
     """Remove a weather location."""
-    config = load_weather_config()
+    config = WeatherConfig.load()
     
     # Find the location
     for i, location in enumerate(config.locations):
         if location.name == name:
             config.locations.pop(i)
-            save_weather_config(config)
+            config.save()
             click.echo(f"Removed location '{name}'.")
             return
     
@@ -94,9 +89,9 @@ def remove_location(name: str):
 @click.argument("api_key")
 def set_api_key(api_key: str):
     """Set the OpenWeather API key."""
-    config = load_weather_config()
+    config = WeatherConfig.load()
     config.openweather_api_key = api_key
-    save_weather_config(config)
+    config.save()
     click.echo("API key set successfully.")
 
 
@@ -105,7 +100,7 @@ def set_api_key(api_key: str):
 @click.option("--alerts", "-a", type=int, help="Alerts update interval in seconds")
 def set_intervals(temperature: Optional[int], alerts: Optional[int]):
     """Set the update intervals for weather data."""
-    config = load_weather_config()
+    config = WeatherConfig.load()
     
     if temperature is not None:
         if temperature < 60:
@@ -119,7 +114,7 @@ def set_intervals(temperature: Optional[int], alerts: Optional[int]):
             return
         config.alerts_update_interval = alerts
     
-    save_weather_config(config)
+    config.save()
     click.echo("Update intervals set successfully.")
     click.echo(f"Temperature update interval: {config.temperature_update_interval} seconds")
     click.echo(f"Alerts update interval: {config.alerts_update_interval} seconds")
@@ -128,7 +123,7 @@ def set_intervals(temperature: Optional[int], alerts: Optional[int]):
 @weather.command("show-config")
 def show_config():
     """Show the current weather configuration."""
-    config = load_weather_config()
+    config = WeatherConfig.load()
     
     # Mask the API key for security
     config_dict = json.loads(config.model_dump_json())
@@ -154,7 +149,7 @@ def start_weather_service(debug: bool):
     )
     
     # Load configuration
-    config = load_weather_config()
+    config = WeatherConfig.load()
     
     # Validate configuration
     if not config.locations:
