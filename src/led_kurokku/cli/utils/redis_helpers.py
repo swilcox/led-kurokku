@@ -6,9 +6,9 @@ import redis.asyncio as redis
 from pydantic import BaseModel
 
 from ..models.instance import KurokkuInstance
-from led_kurokku.models import ConfigSettings
-from led_kurokku.widgets.alert import IndividualAlert
-from led_kurokku.core import (
+from ... import models  # Updated import path
+from ...widgets.alert import IndividualAlert
+from ...core import (
     REDIS_KEY_CONFIG,
     REDIS_KEY_ALERT,
     REDIS_KEY_SEPARATOR,
@@ -35,7 +35,7 @@ async def test_connection(instance: KurokkuInstance) -> bool:
         return False
 
 
-async def set_config(instance: KurokkuInstance, config: ConfigSettings) -> bool:
+async def set_config(instance: KurokkuInstance, config: models.ConfigSettings) -> bool:
     """Set the configuration for an instance."""
     try:
         client = await connect_to_instance(instance)
@@ -48,7 +48,7 @@ async def set_config(instance: KurokkuInstance, config: ConfigSettings) -> bool:
         return False
 
 
-async def get_config(instance: KurokkuInstance) -> Optional[ConfigSettings]:
+async def get_config(instance: KurokkuInstance) -> Optional[models.ConfigSettings]:
     """Get the configuration from an instance."""
     try:
         client = await connect_to_instance(instance)
@@ -59,7 +59,7 @@ async def get_config(instance: KurokkuInstance) -> Optional[ConfigSettings]:
             return None
         
         config_dict = json.loads(config_json)
-        return ConfigSettings.parse_obj(config_dict)
+        return models.ConfigSettings.parse_obj(config_dict)
     except Exception as e:
         print(f"Error getting config: {e}")
         return None

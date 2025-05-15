@@ -3,18 +3,19 @@ from unittest.mock import AsyncMock
 
 from fakeredis import FakeAsyncRedis
 
-from led_kurokku_cli.models.instance import KurokkuInstance, KurokkuRegistry
-from led_kurokku_cli.models.weather import WeatherLocation, WeatherConfig
+from led_kurokku.cli.models.instance import KurokkuInstance, KurokkuRegistry
+from led_kurokku.cli.models.weather import WeatherLocation, WeatherConfig
 
 
 class AsyncIterator:
     """A proper async iterator for testing async for loops."""
+
     def __init__(self, items):
         self.items = items.copy() if items else []
-        
+
     def __aiter__(self):
         return self
-        
+
     async def __anext__(self):
         if not self.items:
             raise StopAsyncIteration

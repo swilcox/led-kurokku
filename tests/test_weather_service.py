@@ -5,9 +5,9 @@ from datetime import datetime, time
 from unittest.mock import patch, MagicMock, AsyncMock
 from fakeredis import FakeAsyncRedis
 
-from led_kurokku_cli.models.instance import KurokkuInstance, KurokkuRegistry
-from led_kurokku_cli.models.weather import WeatherLocation, WeatherConfig
-from led_kurokku_cli.services.weather_service import WeatherService
+from led_kurokku.cli.models.instance import KurokkuInstance, KurokkuRegistry
+from led_kurokku.cli.models.weather import WeatherLocation, WeatherConfig
+from led_kurokku.cli.services.weather_service import WeatherService
 
 
 class TestWeatherService:
@@ -35,7 +35,7 @@ class TestWeatherService:
         )
 
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.services.weather_service.load_registry")
+    @patch("led_kurokku.cli.services.weather_service.load_registry")
     async def test_init(self, mock_load_registry):
         """Test initializing the weather service."""
         mock_load_registry.return_value = self.registry
@@ -62,9 +62,9 @@ class TestWeatherService:
         )
 
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.services.weather_service.get_temperature_data")
+    @patch("led_kurokku.cli.services.weather_service.get_temperature_data")
     @patch(
-        "led_kurokku_cli.services.weather_service.WeatherService.connect_to_instance"
+        "led_kurokku.cli.services.weather_service.WeatherService.connect_to_instance"
     )
     async def test_update_temperature_for_location(self, mock_connect, mock_get_temp):
         """Test updating temperature data for a location."""
@@ -94,12 +94,12 @@ class TestWeatherService:
         mock_client.set.assert_called_with(redis_key, "72*F", ex=3600)
 
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.services.weather_service.get_temperature_data")
+    @patch("led_kurokku.cli.services.weather_service.get_temperature_data")
     @patch(
-        "led_kurokku_cli.services.weather_service.WeatherService.connect_to_instance"
+        "led_kurokku.cli.services.weather_service.WeatherService.connect_to_instance"
     )
     @patch(
-        "led_kurokku_cli.services.weather_service.WeatherService.update_brightness_settings"
+        "led_kurokku.cli.services.weather_service.WeatherService.update_brightness_settings"
     )
     async def test_update_temperature_with_sun_data(
         self, mock_update_brightness, mock_connect, mock_get_temp
@@ -126,7 +126,7 @@ class TestWeatherService:
 
     @pytest.mark.asyncio
     @patch(
-        "led_kurokku_cli.services.weather_service.WeatherService.connect_to_instance"
+        "led_kurokku.cli.services.weather_service.WeatherService.connect_to_instance"
     )
     async def test_update_brightness_settings_success(self, mock_connect):
         """Test updating brightness settings successfully."""
@@ -163,7 +163,7 @@ class TestWeatherService:
 
     @pytest.mark.asyncio
     @patch(
-        "led_kurokku_cli.services.weather_service.WeatherService.connect_to_instance"
+        "led_kurokku.cli.services.weather_service.WeatherService.connect_to_instance"
     )
     async def test_update_brightness_settings_no_change(self, mock_connect):
         """Test that brightness settings aren't updated if times haven't changed significantly."""
@@ -197,7 +197,7 @@ class TestWeatherService:
         mock_client.set.assert_not_called()
 
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.services.weather_service.process_noaa_alerts")
+    @patch("led_kurokku.cli.services.weather_service.process_noaa_alerts")
     @patch("redis.asyncio.Redis", new_callable=lambda: FakeAsyncRedis)
     async def test_update_alerts_for_location(self, mock_redis, mock_process_alerts):
         """Test updating alerts for a location."""

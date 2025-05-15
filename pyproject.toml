@@ -1,11 +1,9 @@
 [project]
 name = "led-kurokku"
-version = "0.1.0"
+version = "0.1.1"
 description = "LED display for TM1637 displays"
 readme = "README.md"
-authors = [
-    { name = "swilcox", email = "steven@wilcoxzone.com" }
-]
+authors = [{ name = "swilcox", email = "steven@wilcoxzone.com" }]
 requires-python = ">=3.11"
 dependencies = [
     "click>=8.1.8",
@@ -17,7 +15,7 @@ dependencies = [
 
 [project.scripts]
 led-kurokku = "led_kurokku.main:main"
-kurokku-cli = "led_kurokku_cli.main:cli"
+kurokku-cli = "led_kurokku.cli_main:cli"
 
 [build-system]
 requires = ["hatchling"]
@@ -33,22 +31,16 @@ dev = [
 ]
 
 [project.optional-dependencies]
-rpi = [
-    "rpi-gpio>=0.7.1",
-]
+rpi = ["rpi-gpio>=0.7.1"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
-addopts = "--cov=led_kurokku --cov=led_kurokku_cli --cov-report=term-missing:skip-covered"
-# Note: We're temporarily disabling coverage for the CLI tool until test issues are resolved
+addopts = "--cov=led_kurokku --cov-report=term-missing:skip-covered"
+# CLI tool is now included as part of the led_kurokku package
 
 [tool.coverage.run]
-source = ["led_kurokku", "led_kurokku_cli"]
-omit = [
-    "*/tests/*",
-    "*/__pycache__/*",
-    "*/site-packages/*"
-]
+source = ["led_kurokku"]
+omit = ["*/tests/*", "*/__pycache__/*", "*/site-packages/*"]
 
 [tool.coverage.report]
 exclude_lines = [

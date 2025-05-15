@@ -1,4 +1,4 @@
-"""CLI command modules"""
+"""CLI commands for managing LED-Kurokku instances."""
 
 from .instances import instances
 from .config import config

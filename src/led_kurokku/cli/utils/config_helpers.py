@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Union
 import yaml
 from pydantic import ValidationError
 
-from led_kurokku.models import ConfigSettings
+from ... import models  # Updated import path
 
 
 def load_yaml_config(file_path: str) -> Dict[str, Any]:
@@ -21,10 +21,10 @@ def save_yaml_config(config: Dict[str, Any], file_path: str) -> None:
         yaml.dump(config, f, sort_keys=False, indent=2)
 
 
-def validate_config(config_data: Dict[str, Any]) -> Optional[ConfigSettings]:
+def validate_config(config_data: Dict[str, Any]) -> Optional[models.ConfigSettings]:
     """Validate a configuration dictionary against the ConfigSettings model."""
     try:
-        return ConfigSettings.parse_obj(config_data)
+        return models.ConfigSettings.parse_obj(config_data)
     except ValidationError as e:
         print(f"Error validating configuration: {e}")
         return None

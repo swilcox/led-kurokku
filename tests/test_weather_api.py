@@ -3,8 +3,8 @@ import pytest
 from datetime import datetime, time
 from unittest.mock import patch, MagicMock, AsyncMock
 
-from led_kurokku_cli.models.weather import WeatherLocation
-from led_kurokku_cli.utils.weather_api import (
+from led_kurokku.cli.models.weather import WeatherLocation
+from led_kurokku.cli.utils.weather_api import (
     fetch_openweather_data,
     format_temperature_for_display,
     get_temperature_data,
@@ -74,7 +74,7 @@ class TestWeatherAPI:
         assert result is None
     
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.utils.weather_api.fetch_openweather_data")
+    @patch("led_kurokku.cli.utils.weather_api.fetch_openweather_data")
     async def test_get_temperature_data_success(self, mock_fetch):
         """Test getting temperature data successfully."""
         # Mock the OpenWeather data with sunrise/sunset
@@ -96,7 +96,7 @@ class TestWeatherAPI:
         assert isinstance(sun_data["sunset"], time)
     
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.utils.weather_api.fetch_openweather_data")
+    @patch("led_kurokku.cli.utils.weather_api.fetch_openweather_data")
     async def test_get_temperature_data_no_sun_data(self, mock_fetch):
         """Test getting temperature data without sunrise/sunset."""
         # Mock the OpenWeather data without sunrise/sunset
@@ -112,7 +112,7 @@ class TestWeatherAPI:
         assert sun_data is None
     
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.utils.weather_api.fetch_openweather_data")
+    @patch("led_kurokku.cli.utils.weather_api.fetch_openweather_data")
     async def test_get_temperature_data_error(self, mock_fetch):
         """Test getting temperature data with an error."""
         # Mock an error
@@ -180,7 +180,7 @@ class TestWeatherAPI:
         assert result == []
     
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.utils.weather_api.fetch_noaa_alerts")
+    @patch("led_kurokku.cli.utils.weather_api.fetch_noaa_alerts")
     async def test_process_noaa_alerts_success(self, mock_fetch):
         """Test processing NOAA alerts successfully."""
         # Mock the NOAA alerts
@@ -207,7 +207,7 @@ class TestWeatherAPI:
         assert alerts[0]["source"] == "NOAA"
     
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.utils.weather_api.fetch_noaa_alerts")
+    @patch("led_kurokku.cli.utils.weather_api.fetch_noaa_alerts")
     async def test_process_noaa_alerts_no_alerts(self, mock_fetch):
         """Test processing NOAA alerts with no alerts."""
         # Mock no alerts
@@ -219,7 +219,7 @@ class TestWeatherAPI:
         assert alerts == []
     
     @pytest.mark.asyncio
-    @patch("led_kurokku_cli.utils.weather_api.fetch_noaa_alerts")
+    @patch("led_kurokku.cli.utils.weather_api.fetch_noaa_alerts")
     async def test_process_noaa_alerts_invalid_data(self, mock_fetch):
         """Test processing NOAA alerts with invalid data."""
         # Mock invalid data

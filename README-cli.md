@@ -78,4 +78,4 @@ The CLI is organized into the following command groups:
 
 ## Full Documentation
 
-For detailed documentation on all available commands and options, see the [CLI Documentation](./src/led_kurokku_cli/README.md).
+For detailed documentation on all available commands and options, see the [CLI Documentation](./src/led_kurokku/cli/README.md).

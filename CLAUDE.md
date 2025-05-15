@@ -25,7 +25,7 @@ LED-Kurokku is a display manager for TM1637 LED displays with two main component
 
 ## Code Organization
 - `led_kurokku/`: Core LED display application
-- `led_kurokku_cli/`: CLI tool for remote management
+- `led_kurokku/cli/`: CLI tool for remote management
   - `models/`: Pydantic models for the CLI tool
   - `utils/`: Helper utilities including Redis and config operations
 

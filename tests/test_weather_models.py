@@ -2,7 +2,7 @@ import json
 import pytest
 from unittest.mock import patch, mock_open
 
-from led_kurokku_cli.models.weather import (
+from led_kurokku.cli.models.weather import (
     WeatherLocation,
     WeatherConfig,
 )
@@ -102,7 +102,7 @@ class TestWeatherConfig:
 
 
 class TestWeatherConfigMethods:
-    @patch("led_kurokku_cli.models.weather.Path")
+    @patch("led_kurokku.cli.models.weather.Path")
     def test_get_config_path(self, mock_path):
         """Test that the correct path is returned."""
         mock_path.return_value.expanduser.return_value = "/home/user"
@@ -114,7 +114,7 @@ class TestWeatherConfigMethods:
         assert path == mock_config_dir / "weather_config.json"
         mock_config_dir.mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
-    @patch("led_kurokku_cli.models.weather.WeatherConfig.get_config_path")
+    @patch("led_kurokku.cli.models.weather.WeatherConfig.get_config_path")
     def test_load_method_no_file(self, mock_get_path):
         """Test loading config when file doesn't exist."""
         mock_path = mock_get_path.return_value
@@ -125,7 +125,7 @@ class TestWeatherConfigMethods:
         assert isinstance(config, WeatherConfig)
         assert config.locations == []
 
-    @patch("led_kurokku_cli.models.weather.WeatherConfig.get_config_path")
+    @patch("led_kurokku.cli.models.weather.WeatherConfig.get_config_path")
     @patch(
         "builtins.open",
         new_callable=mock_open,
@@ -142,7 +142,7 @@ class TestWeatherConfigMethods:
         assert config.temperature_update_interval == 600
         mock_file.assert_called_once_with(mock_path, "r")
 
-    @patch("led_kurokku_cli.models.weather.WeatherConfig.get_config_path")
+    @patch("led_kurokku.cli.models.weather.WeatherConfig.get_config_path")
     @patch("builtins.open", new_callable=mock_open)
     def test_save_method(self, mock_file, mock_get_path):
         """Test saving config to file."""

@@ -30,7 +30,9 @@ async def event_loop(force_console=False):
     async with redis.Redis(host=redis_host, port=redis_port, db=0) as redis_client:
         tasks = [
             event_listener(redis_client, queue, config_event, stop_event),
-            display_widgets(redis_client, queue, config_event, stop_event, force_console),
+            display_widgets(
+                redis_client, queue, config_event, stop_event, force_console
+            ),
         ]
         await asyncio.gather(*tasks)  # Run tasks concurrently
 
@@ -43,8 +45,10 @@ def cleanup_gpio():
     try:
         # Only import GPIO module if it's available
         import importlib.util
+
         if importlib.util.find_spec("RPi") and importlib.util.find_spec("RPi.GPIO"):
             from RPi import GPIO
+
             GPIO.cleanup()
             logging.info("GPIO pins cleaned up")
     except Exception as e:
@@ -53,20 +57,22 @@ def cleanup_gpio():
 
 def setup_signal_handlers():
     """Set up signal handlers for graceful shutdown"""
+
     def signal_handler(sig, frame):
         logging.info(f"Received signal {sig}, shutting down...")
         cleanup_gpio()
         sys.exit(0)
-    
+
     # Register signal handlers for common termination signals
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
 
 @click.command()
-@click.option('--debug', is_flag=True, default=False)
-@click.option('--console', is_flag=True, default=False)
-@click.option('--log-file', default="")
+@click.version_option()
+@click.option("--debug", is_flag=True, default=False)
+@click.option("--console", is_flag=True, default=False)
+@click.option("--log-file", default="")
 def main(debug, console, log_file):
     """
     Main function to run the clock application.
@@ -78,11 +84,11 @@ def main(debug, console, log_file):
     setup_logging(level=log_level, filename=log_file)
     logger = logging.getLogger(__name__)
     logger.info("Starting led-kurokku application")
-    
+
     # Register cleanup functions
     setup_signal_handlers()
     atexit.register(cleanup_gpio)
-    
+
     try:
         asyncio.run(event_loop(force_console=console))
     except KeyboardInterrupt:
