@@ -16,11 +16,7 @@ def test_clock_widget_config_defaults():
 
 
 def test_clock_widget_config_custom_values():
-    config = ClockWidgetConfig(
-        enabled=False,
-        duration=10,
-        use_24_hour_format=False
-    )
+    config = ClockWidgetConfig(enabled=False, duration=10, use_24_hour_format=False)
     assert config.widget_type == "clock"
     assert config.enabled is False
     assert config.duration == 10
@@ -60,7 +56,7 @@ def test_alert_widget_config_custom_values():
         duration=10,
         scroll_speed=0.2,
         repeat=False,
-        sleep_before_repeat=2.0
+        sleep_before_repeat=2.0,
     )
     assert config.widget_type == "alert"
     assert config.enabled is False
@@ -111,7 +107,7 @@ def test_message_widget_config_custom_values():
         dynamic_source="kurokku:message:test",
         scroll_speed=0.2,
         repeat=True,
-        sleep_before_repeat=2.0
+        sleep_before_repeat=2.0,
     )
     assert config.widget_type == "message"
     assert config.enabled is False
@@ -168,7 +164,7 @@ def test_animation_widget_config_custom_values():
         dynamic_source="kurokku:animation:test",
         scroll_speed=0.2,
         repeat=False,
-        sleep_before_repeat=1.0
+        sleep_before_repeat=1.0,
     )
     assert config.widget_type == "animation"
     assert config.enabled is False

@@ -8,15 +8,15 @@ def test_widget_type_enum():
     # Test ALERT value
     assert WidgetType.ALERT == "alert"
     assert WidgetType.ALERT.value == "alert"
-    
+
     # Test CLOCK value
     assert WidgetType.CLOCK == "clock"
     assert WidgetType.CLOCK.value == "clock"
-    
+
     # Test MESSAGE value
     assert WidgetType.MESSAGE == "message"
     assert WidgetType.MESSAGE.value == "message"
-    
+
     # Test ANIMATION value
     assert WidgetType.ANIMATION == "animation"
     assert WidgetType.ANIMATION.value == "animation"
@@ -30,22 +30,14 @@ def test_widget_config_defaults():
 
 
 def test_widget_config_custom_values():
-    config = WidgetConfig(
-        widget_type=WidgetType.MESSAGE,
-        enabled=False,
-        duration=10
-    )
+    config = WidgetConfig(widget_type=WidgetType.MESSAGE, enabled=False, duration=10)
     assert config.widget_type == WidgetType.MESSAGE
     assert config.enabled is False
     assert config.duration == 10
 
 
 def test_widget_config_from_dict():
-    config_dict = {
-        "widget_type": "alert",
-        "enabled": True,
-        "duration": 15
-    }
+    config_dict = {"widget_type": "alert", "enabled": True, "duration": 15}
     config = WidgetConfig(**config_dict)
     assert config.widget_type == WidgetType.ALERT
     assert config.enabled is True
@@ -71,11 +63,11 @@ def test_widget_config_validation():
     # Test with invalid widget_type
     with pytest.raises(ValueError):
         WidgetConfig(widget_type="invalid_type")
-    
+
     # Test with invalid duration type
     with pytest.raises(ValueError):
         WidgetConfig(widget_type=WidgetType.CLOCK, duration="not_a_number")
-    
+
     # Test with invalid enabled type
     with pytest.raises(ValueError):
         WidgetConfig(widget_type=WidgetType.CLOCK, enabled="not_a_boolean")

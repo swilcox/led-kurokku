@@ -1,9 +1,8 @@
 import json
 import asyncio
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import redis.asyncio as redis
-from pydantic import BaseModel
 
 from ..models.instance import KurokkuInstance
 from ... import models  # Updated import path
@@ -54,10 +53,10 @@ async def get_config(instance: KurokkuInstance) -> Optional[models.ConfigSetting
         client = await connect_to_instance(instance)
         config_json = await client.get(REDIS_KEY_CONFIG)
         await client.close()
-        
+
         if not config_json:
             return None
-        
+
         config_dict = json.loads(config_json)
         return models.ConfigSettings.parse_obj(config_dict)
     except Exception as e:
@@ -66,9 +65,9 @@ async def get_config(instance: KurokkuInstance) -> Optional[models.ConfigSetting
 
 
 async def send_alert(
-    instance: KurokkuInstance, 
-    message: str, 
-    ttl: int = 300, 
+    instance: KurokkuInstance,
+    message: str,
+    ttl: int = 300,
     display_duration: Optional[float] = None,
     priority: int = 0,
 ) -> bool:
@@ -76,11 +75,11 @@ async def send_alert(
     try:
         import uuid
         from datetime import datetime
-        
+
         # Calculate display duration if not provided
         if display_duration is None:
             display_duration = len(message) * 0.4
-        
+
         # Create an alert object
         alert_id = str(uuid.uuid4())
         alert = IndividualAlert(
@@ -91,17 +90,17 @@ async def send_alert(
             display_duration=display_duration,
             delete_after_display=True,
         )
-        
+
         # Connect to Redis
         client = await connect_to_instance(instance)
-        
+
         # Set the alert
         alert_key = f"{REDIS_KEY_ALERT}{REDIS_KEY_SEPARATOR}{alert_id}"
         alert_json = alert.json(exclude={"id"})  # Exclude ID as it's in the key
-        
+
         await client.set(alert_key, alert_json, ex=ttl)
         await client.close()
-        
+
         return True
     except Exception as e:
         print(f"Error sending alert: {e}")
@@ -112,12 +111,12 @@ async def list_alerts(instance: KurokkuInstance) -> List[Dict[str, Any]]:
     """List all alerts for an instance."""
     try:
         client = await connect_to_instance(instance)
-        
+
         # Get all alert keys
         alert_keys = []
         async for key in client.scan_iter(f"{REDIS_KEY_ALERT}{REDIS_KEY_SEPARATOR}*"):
             alert_keys.append(key)
-        
+
         # Get the alerts
         alerts = []
         for key in alert_keys:
@@ -126,7 +125,7 @@ async def list_alerts(instance: KurokkuInstance) -> List[Dict[str, Any]]:
                 alert_dict = json.loads(alert_json)
                 alert_dict["id"] = key.decode("utf-8").split(REDIS_KEY_SEPARATOR)[-1]
                 alerts.append(alert_dict)
-        
+
         await client.close()
         return alerts
     except Exception as e:
@@ -138,18 +137,18 @@ async def clear_alerts(instance: KurokkuInstance) -> int:
     """Clear all alerts for an instance."""
     try:
         client = await connect_to_instance(instance)
-        
+
         # Get all alert keys
         alert_keys = []
         async for key in client.scan_iter(f"{REDIS_KEY_ALERT}{REDIS_KEY_SEPARATOR}*"):
             alert_keys.append(key)
-        
+
         # Delete the alerts
         count = 0
         for key in alert_keys:
             await client.delete(key)
             count += 1
-        
+
         await client.close()
         return count
     except Exception as e:

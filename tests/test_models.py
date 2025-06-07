@@ -16,6 +16,7 @@ def test_brightness():
     assert b.begin == time(8, 1)
     assert b.end == time(20, 1)
 
+
 def test_empty_configsettings():
     sample_json_str = """
     {"widgets": []}
@@ -23,6 +24,7 @@ def test_empty_configsettings():
     sample = json.loads(sample_json_str)
     c = ConfigSettings(**sample)
     assert c.widgets == []
+
 
 def test_config_settings():
     sample_json_str = """

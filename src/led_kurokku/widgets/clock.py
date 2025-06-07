@@ -35,15 +35,15 @@ class ClockWidget(DisplayWidget):
             if not self.config.use_24_hour_format and now.hour >= 12:
                 # double blink for PM
                 colon_list = [
-                    [True, .15],
-                    [False, .2],
-                    [True, .15],
-                    [False, .5],
+                    [True, 0.15],
+                    [False, 0.2],
+                    [True, 0.15],
+                    [False, 0.5],
                 ]
             else:
                 colon_list = [
-                    [True, .5],
-                    [False, .5],
+                    [True, 0.5],
+                    [False, 0.5],
                 ]
             for colon, timing in colon_list:
                 hours = datetime.now().hour

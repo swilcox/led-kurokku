@@ -2,7 +2,6 @@
 Weather location models for the LED-Kurokku CLI server.
 """
 
-import datetime
 import os
 import json
 from pathlib import Path
@@ -30,7 +29,11 @@ class WeatherLocation(BaseModel):
     lon: Annotated[float, Field(ge=-180, lt=180, description="Longitude coordinate")]
     display_name: str | None = None
     is_default: Annotated[
-        bool, Field(default=False, description="Whether this is the default location for brightness control")
+        bool,
+        Field(
+            default=False,
+            description="Whether this is the default location for brightness control",
+        ),
     ] = False
 
     @field_validator("name", mode="after")
@@ -81,17 +84,21 @@ class WeatherConfig(BaseModel):
 
     # Class variable for configuration path
     CONFIG_PATH: ClassVar[Path] = None
-    
+
     @field_validator("locations")
     @classmethod
-    def validate_default_location(cls, locations: list[WeatherLocation]) -> list[WeatherLocation]:
+    def validate_default_location(
+        cls, locations: list[WeatherLocation]
+    ) -> list[WeatherLocation]:
         """Validate that at most one location is marked as default."""
         default_locations = [loc for loc in locations if loc.is_default]
-        
+
         if len(default_locations) > 1:
             names = [loc.name for loc in default_locations]
-            raise ValueError(f"Only one location can be marked as default. Found multiple defaults: {', '.join(names)}")
-            
+            raise ValueError(
+                f"Only one location can be marked as default. Found multiple defaults: {', '.join(names)}"
+            )
+
         return locations
 
     @staticmethod

@@ -46,7 +46,11 @@ async def display_widgets(
     tm = TM1637(driver=create_driver(force_console=force_console))
 
     while True:
-        if config_data.brightness.end > datetime.now().time() > config_data.brightness.begin:
+        if (
+            config_data.brightness.end
+            > datetime.now().time()
+            > config_data.brightness.begin
+        ):
             tm.brightness = config_data.brightness.high
         else:
             tm.brightness = config_data.brightness.low
@@ -115,9 +119,7 @@ async def event_listener(
                         else None
                     )
                     if new_hash_value != hash_value:
-                        logger.debug(
-                            f"New configuration hash: {new_hash_value}"
-                        )
+                        logger.debug(f"New configuration hash: {new_hash_value}")
                         logger.debug(f"New configuration value: {new_config_data}")
                         hash_value = new_hash_value
                         config_data = new_config_data
@@ -137,7 +139,9 @@ async def event_listener(
                         stop_event.set()
                         break
                     elif data == ALERT_WORD:
-                        logger.debug("ALERT received, stopping display widgets and restarting.")
+                        logger.debug(
+                            "ALERT received, stopping display widgets and restarting."
+                        )
                         config_event.set()
                 else:
                     logger.warning(f"Unhandled redis event pattern: {pattern}")

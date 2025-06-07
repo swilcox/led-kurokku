@@ -39,7 +39,9 @@ class MessageWidget(DisplayWidget):
                         f"Dynamic message fetched from {self.config.dynamic_source}: {message}"
                     )
                 else:
-                    logger.warning(f"failed to receive dynamic_message from {self.config.dynamic_source}")
+                    logger.warning(
+                        f"failed to receive dynamic_message from {self.config.dynamic_source}"
+                    )
             if len(message) > self.tm.display_length:
                 await self.interruptable_scrolled_display(
                     self.tm.show_text,

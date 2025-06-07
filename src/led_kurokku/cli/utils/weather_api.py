@@ -2,16 +2,14 @@
 Weather API utilities for the LED-Kurokku CLI server.
 """
 
-import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple, Any
 
 import aiohttp
+from loguru import logger
 
 from ..models.weather import WeatherLocation
 
-
-logger = logging.getLogger(__name__)
 
 # Redis key constants
 REDIS_WEATHER_TEMP_KEY_PREFIX = "kurokku:weather:temp:"
@@ -31,7 +29,7 @@ async def fetch_openweather_data(
     Returns:
         Dictionary of weather data or None if the request failed
     """
-    url = f"https://api.openweathermap.org/data/2.5/weather"
+    url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
         "lat": location.lat,
         "lon": location.lon,

@@ -11,19 +11,13 @@ def test_animation_frame_defaults():
 
 
 def test_animation_frame_custom_values():
-    frame = AnimationFrame(
-        segments=[5, 6, 7, 8],
-        duration=0.75
-    )
+    frame = AnimationFrame(segments=[5, 6, 7, 8], duration=0.75)
     assert frame.segments == [5, 6, 7, 8]
     assert frame.duration == 0.75
 
 
 def test_animation_frame_from_dict():
-    frame_dict = {
-        "segments": [1, 2, 3, 4],
-        "duration": 0.5
-    }
+    frame_dict = {"segments": [1, 2, 3, 4], "duration": 0.5}
     frame = AnimationFrame(**frame_dict)
     assert frame.segments == [1, 2, 3, 4]
     assert frame.duration == 0.5

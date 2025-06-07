@@ -3,7 +3,12 @@ from typing import Annotated, Union
 
 from pydantic import BaseModel, Field
 
-from .widgets import ClockWidgetConfig, AlertWidgetConfig, MessageWidgetConfig, AnimationWidgetConfig
+from .widgets import (
+    ClockWidgetConfig,
+    AlertWidgetConfig,
+    MessageWidgetConfig,
+    AnimationWidgetConfig,
+)
 
 
 class Brightness(BaseModel):
@@ -18,7 +23,12 @@ class ConfigSettings(BaseModel):
 
     widgets: list[
         Annotated[
-            Union[ClockWidgetConfig, AlertWidgetConfig, MessageWidgetConfig, AnimationWidgetConfig],
+            Union[
+                ClockWidgetConfig,
+                AlertWidgetConfig,
+                MessageWidgetConfig,
+                AnimationWidgetConfig,
+            ],
             Field(discriminator="widget_type"),
         ],
     ]

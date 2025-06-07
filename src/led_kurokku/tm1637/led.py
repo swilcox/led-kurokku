@@ -26,13 +26,13 @@ class LedDriver(BaseDriver):
         self.dio_pin = dio_pin
         self._brightness = brightness
         self._driver_name = "LED"
-        
+
         # Ensure pins are cleaned up before setting them up again
         try:
             GPIO.cleanup([self.clk_pin, self.dio_pin])
         except:
             pass
-        
+
         # Set up GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.clk_pin, GPIO.OUT)

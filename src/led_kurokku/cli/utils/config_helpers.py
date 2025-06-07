@@ -1,7 +1,6 @@
-import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import yaml
 from pydantic import ValidationError
@@ -42,21 +41,21 @@ def list_templates() -> Dict[str, Path]:
     """List all available templates."""
     templates_dir = get_templates_dir()
     templates = {}
-    
+
     for file_path in templates_dir.glob("*.yaml"):
         templates[file_path.stem] = file_path
-    
+
     return templates
 
 
 def load_template(name: str) -> Optional[Dict[str, Any]]:
     """Load a template by name."""
     templates = list_templates()
-    
+
     if name not in templates:
         print(f"Template '{name}' not found.")
         return None
-    
+
     return load_yaml_config(str(templates[name]))
 
 
@@ -64,7 +63,7 @@ def save_template(name: str, config: Dict[str, Any]) -> bool:
     """Save a configuration as a template."""
     templates_dir = get_templates_dir()
     file_path = templates_dir / f"{name}.yaml"
-    
+
     try:
         save_yaml_config(config, str(file_path))
         return True

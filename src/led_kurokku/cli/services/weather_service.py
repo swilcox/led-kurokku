@@ -4,9 +4,9 @@ Weather service for LED-Kurokku CLI server.
 
 import asyncio
 import json
-import logging
 from datetime import datetime
 
+from loguru import logger
 import redis.asyncio as redis
 
 from ..models.instance import KurokkuInstance, load_registry
@@ -17,9 +17,6 @@ from ..utils.weather_api import (
     get_temperature_data,
     process_noaa_alerts,
 )
-
-
-logger = logging.getLogger(__name__)
 
 
 class WeatherService:
@@ -94,7 +91,9 @@ class WeatherService:
                 # Update brightness settings only if this is the default location and sunrise/sunset data is available
                 if location.is_default and sun_data:
                     await self.update_brightness_settings(client, sun_data)
-                    logger.info(f"Used {location.name} (default) for brightness settings")
+                    logger.info(
+                        f"Used {location.name} (default) for brightness settings"
+                    )
 
                 await client.aclose()
 
@@ -292,13 +291,17 @@ class WeatherService:
         if not self.config.locations:
             logger.error("No locations configured")
             return
-            
+
         # Check if there's a default location for brightness control
         default_locations = [loc for loc in self.config.locations if loc.is_default]
         if not default_locations:
-            logger.warning("No default location configured for brightness control. Sunrise/sunset-based brightness control will be disabled.")
+            logger.warning(
+                "No default location configured for brightness control. Sunrise/sunset-based brightness control will be disabled."
+            )
         else:
-            logger.info(f"Using {default_locations[0].name} as default location for brightness control")
+            logger.info(
+                f"Using {default_locations[0].name} as default location for brightness control"
+            )
 
         self.running = True
         self.temperature_task = asyncio.create_task(self.temperature_update_loop())
