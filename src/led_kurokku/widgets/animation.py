@@ -48,7 +48,7 @@ class AnimationWidget(DisplayWidget):
 
     async def display(self):
         logger.debug(f"AnimationWidget started with config: {self.config}")
-        if not self.check_cron(self.config.cron_minute):
+        if not self.check_cron():
             logger.debug("Cron minute check failed, skipping display.")
             return
         while self.okay_to_display():

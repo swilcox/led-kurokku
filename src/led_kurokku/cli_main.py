@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import click
 
-from .cli.commands import instances, config, template, alert, weather
+from .cli.commands import instances, config, template, alert, weather, web
 
 
 # Main CLI entry point
@@ -17,9 +17,8 @@ cli.add_command(config)
 cli.add_command(template)
 cli.add_command(alert)
 cli.add_command(weather)
+cli.add_command(web)
 
 
 if __name__ == "__main__":
     cli()
-
-something = 1

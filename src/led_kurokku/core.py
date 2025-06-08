@@ -3,11 +3,13 @@ from datetime import datetime
 import hashlib
 import json
 import logging
+from typing import Optional
 
 import redis.asyncio as redis
 from .models import ConfigSettings
 from .tm1637 import TM1637
-from .tm1637.factory import create_driver
+from .tm1637.factory import create_driver, DriverType
+from .tm1637.base_driver import BaseDriver
 
 from .widgets import widget_factory
 
@@ -35,15 +37,31 @@ async def display_widgets(
     config_event: asyncio.Event,
     stop_event: asyncio.Event,
     force_console: bool = False,
+    driver_type: Optional[DriverType] = None,
+    driver_instance: Optional[BaseDriver] = None,
 ):
     """
     Main function to display the clock and other widgets.
     This function should be run in an asynchronous context.
+    
+    :param redis_client: Redis client for communication.
+    :param queue: Queue for receiving configuration updates.
+    :param config_event: Event to signal configuration updates.
+    :param stop_event: Event to signal stopping.
+    :param force_console: Force using the console driver.
+    :param driver_type: Optional specific driver type to use.
+    :param driver_instance: Optional existing driver instance to use.
     """
     config_data = ConfigSettings(**(await queue.get()))
     config_event.clear()
-
-    tm = TM1637(driver=create_driver(force_console=force_console))
+    
+    # Use the provided driver instance or create a new one
+    if driver_instance:
+        driver = driver_instance
+    else:
+        driver = create_driver(force_console=force_console, driver_type=driver_type)
+    
+    tm = TM1637(driver=driver)
 
     while True:
         if (
