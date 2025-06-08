@@ -8,6 +8,7 @@ LED-Kurokku is a versatile system for controlling TM1637 LED displays with multi
 
 1. **led-kurokku**: Core application that controls the LED display
 2. **kurokku-cli**: Command-line tool for managing multiple LED-Kurokku instances
+3. **Web display**: Web interface for visualizing the TM1637 display in a browser
 
 See the [Architecture Document](ARCHITECTURE.md) for a detailed system diagram and explanation of how the components work together.
 
@@ -29,6 +30,8 @@ The clock is designed to have its configuration controlled by a server applicati
 
 ## Running Locally without an LED Display
 
+### Virtual Text Display
+
 If you don't install the optional `rpi` dependencies or they're not installed correctly, the program will default to a virtual text display.
 
 ```text
@@ -39,6 +42,34 @@ If you don't install the optional `rpi` dependencies or they're not installed co
 ┃  ┃    ┃    ┃ ┃  ┃
  ━━        ━━   ━━
 ```
+
+### Web Display
+
+You can run LED-Kurokku with a web-based virtual display that shows the TM1637 segments in a browser:
+
+```bash
+kurokku-cli web start
+```
+
+This will start a web server on port 8080 (by default) with these features:
+
+1. A WebSocket server that broadcasts display updates in real-time
+2. A browser-based visualization of the 7-segment display
+3. Full integration with the core application event loop
+4. Automatic updates from the configured widgets (clock, messages, alerts, etc.)
+5. Support for configuration changes through Redis
+
+You can access the virtual display by opening a web browser and navigating to `http://localhost:8080`.
+
+Command options:
+- `--host` - Host address to bind to (default: 0.0.0.0)
+- `--port` - Port to listen on (default: 8080)
+- `--debug` - Enable debug logging
+- `--log-file` - Log file path (empty for console logging)
+
+The web display is fully functional and operates just like a physical TM1637 display - it shows the time, messages, alerts, and other widgets according to your configuration. Any changes to the Redis configuration will be immediately reflected on the web display.
+
+### Debug Mode
 
 If you want to do a deeper dive into debugging, you can specify both the `--debug` flag to force `DEBUG` level logging and `--console` to log detailed information about what would have been sent to the display instead of the virtual display or the real display.
 
