@@ -43,7 +43,7 @@ async def display_widgets(
     """
     Main function to display the clock and other widgets.
     This function should be run in an asynchronous context.
-    
+
     :param redis_client: Redis client for communication.
     :param queue: Queue for receiving configuration updates.
     :param config_event: Event to signal configuration updates.
@@ -54,13 +54,13 @@ async def display_widgets(
     """
     config_data = ConfigSettings(**(await queue.get()))
     config_event.clear()
-    
+
     # Use the provided driver instance or create a new one
     if driver_instance:
         driver = driver_instance
     else:
         driver = create_driver(force_console=force_console, driver_type=driver_type)
-    
+
     tm = TM1637(driver=driver)
 
     while True:
@@ -101,7 +101,7 @@ async def event_listener(
         else None
     )
     # TODO: what to do if hash_value is None?
-    logger.info(f"Loaded initial configuration from redis")
+    logger.info("Loaded initial configuration from redis")
     logger.debug(f"Initial configuration hash: {hash_value}")
     logger.debug(f"Initial configuration value: {config_data}")
     config_event.set()

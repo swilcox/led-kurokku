@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import pathlib
-from typing import Dict, List, Optional, Set
 
 import aiohttp
 from aiohttp import web
@@ -28,9 +27,9 @@ class WebServer:
 
     def __init__(
         self,
-        redis_client: Optional[redis.Redis] = None,
+        redis_client: redis.Redis | None = None,
         driver_type: DriverType = DriverType.WEBSOCKET,
-        driver_instance: Optional[BaseDriver] = None,
+        driver_instance: BaseDriver | None = None,
     ):
         """
         Initialize the web server.
@@ -49,7 +48,7 @@ class WebServer:
             self.tm1637_driver = create_driver(driver_type=driver_type)
 
         self.tm1637 = TM1637(driver=self.tm1637_driver)
-        self.clients: Dict[str, asyncio.Queue] = {}
+        self.clients: dict[str, asyncio.Queue] = {}
 
         # Set up routes
         self.app.router.add_get("/", self.handle_index)

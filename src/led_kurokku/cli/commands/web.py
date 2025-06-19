@@ -2,15 +2,15 @@ import asyncio
 import logging
 import os
 import sys
-from typing import List, Optional
 
 import click
+import redis.asyncio as redis
 
 from ...core import display_widgets, event_listener
-from ...tm1637.factory import create_driver, DriverType
+from ...tm1637.factory import DriverType
 from ...web_server import WebServer
 from ...utils.logging import setup_logging
-import redis.asyncio as redis
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,20 +40,24 @@ async def web_event_loop(host: str, port: int):
     web_server_task = asyncio.create_task(web_server.start(host=host, port=port))
 
     async with redis.Redis(host=redis_host, port=redis_port, db=0) as redis_client:
-        tasks: List[asyncio.Task] = [
-            asyncio.create_task(event_listener(redis_client, queue, config_event, stop_event)),
-            asyncio.create_task(display_widgets(
-                redis_client, 
-                queue, 
-                config_event, 
-                stop_event, 
-                force_console=False,
-                driver_type=DriverType.WEBSOCKET,
-                driver_instance=web_server.tm1637_driver
-            )),
-            web_server_task
+        tasks: list[asyncio.Task] = [
+            asyncio.create_task(
+                event_listener(redis_client, queue, config_event, stop_event)
+            ),
+            asyncio.create_task(
+                display_widgets(
+                    redis_client,
+                    queue,
+                    config_event,
+                    stop_event,
+                    force_console=False,
+                    driver_type=DriverType.WEBSOCKET,
+                    driver_instance=web_server.tm1637_driver,
+                )
+            ),
+            web_server_task,
         ]
-        
+
         try:
             # Run all tasks concurrently
             await asyncio.gather(*tasks)
@@ -64,7 +68,7 @@ async def web_event_loop(host: str, port: int):
             for task in tasks:
                 if not task.done():
                     task.cancel()
-            
+
             # Wait for tasks to finish cancellation
             await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -73,14 +77,16 @@ async def web_event_loop(host: str, port: int):
 @click.option("--host", default="0.0.0.0", help="Host address to bind to")
 @click.option("--port", default=8080, type=int, help="Port to listen on")
 @click.option("--debug", is_flag=True, default=False, help="Enable debug logging")
-@click.option("--log-file", default="", help="Log file path (empty for console logging)")
+@click.option(
+    "--log-file", default="", help="Log file path (empty for console logging)"
+)
 def start(host, port, debug, log_file):
     """Start the LED-Kurokku web server with a virtual TM1637 display."""
     log_level = logging.INFO if not debug else logging.DEBUG
     setup_logging(level=log_level, filename=log_file)
-    
+
     logger.info(f"Starting LED-Kurokku web server on {host}:{port}")
-    
+
     try:
         asyncio.run(web_event_loop(host=host, port=port))
     except KeyboardInterrupt:

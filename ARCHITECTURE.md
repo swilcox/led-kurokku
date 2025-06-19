@@ -35,6 +35,7 @@ graph TD
     CLI --> CLI_Template
     CLI --> CLI_Alert
     CLI --> CLI_Weather
+    CLI --> CLI_Web
     
     %% External Services
     CLI_Weather --> OpenWeather
@@ -45,11 +46,13 @@ graph TD
     CLI_Config --> RedisDB
     CLI_Alert --> RedisDB
     CLI_Weather --> RedisDB
+    CLI_Web --> RedisDB
     
     %% LED-Kurokku Components
     LED_Core[Core LED Controller]
     LED_Widgets[Widget System]
     LED_TM1637[TM1637 Driver]
+    LED_WebSocket[TM1637 Driver]
     
     %% LED-Kurokku structure
     LED --> LED_Core
@@ -119,13 +122,13 @@ graph TD
 
 ### Redis Keys
 
-| Key Pattern | Description |
-|-------------|-------------|
-| `kurokku:config` | Main configuration for the LED-Kurokku instance |
-| `kurokku:alert:*` | Alert messages to be displayed |
-| `kurokku:weather:temp:*` | Weather temperature data |
-| `kurokku:weather:alert:*` | Weather alerts from NOAA |
-| `kurokku:channel:*` | Control channels for messaging |
+| Key Pattern               | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `kurokku:config`          | Main configuration for the LED-Kurokku instance |
+| `kurokku:alert:*`         | Alert messages to be displayed                  |
+| `kurokku:weather:temp:*`  | Weather temperature data                        |
+| `kurokku:weather:alert:*` | Weather alerts from NOAA                        |
+| `kurokku:channel:*`       | Control channels for messaging                  |
 
 ### LED-Kurokku Widget System
 
