@@ -171,3 +171,7 @@ Key features:
 - Alert sending with customizable display duration
 - Weather data integration with automatic brightness adjustment
 - Template management for reusable configurations
+
+## Running via Docker Compose
+
+See the [Docker](docs/README-docker.md) readme for more information on running a `docker compose` setup.
