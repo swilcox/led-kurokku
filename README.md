@@ -10,7 +10,7 @@ LED-Kurokku is a versatile system for controlling TM1637 LED displays with multi
 2. **web-kurokku**: Web server for running a kurokku instance as a web page (essentially a web simulator of a TM1637 display).
 3. **kurokku-cli**: Command-line tool for managing multiple LED-Kurokku instances and weather configuration and weather server.
 
-See the [Architecture Document](ARCHITECTURE.md) for a detailed system diagram and explanation of how the components work together.
+See the [Architecture Document](docs/ARCHITECTURE.md) for a detailed system diagram and explanation of how the components work together.
 
 The clock can be configured to show various widgets at specific intervals.
 

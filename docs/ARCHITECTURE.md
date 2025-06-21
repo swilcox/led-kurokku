@@ -18,6 +18,7 @@ graph TD
     %% Main applications
     CLI[kurokku-cli]
     LED[led-kurokku]
+    WEB[web-kurokku]
     RedisDB[(Redis Database)]
     OpenWeather[OpenWeather API]
     NOAA[NOAA Weather API]
@@ -35,8 +36,7 @@ graph TD
     CLI --> CLI_Template
     CLI --> CLI_Alert
     CLI --> CLI_Weather
-    CLI --> CLI_Web
-    
+        
     %% External Services
     CLI_Weather --> OpenWeather
     CLI_Weather --> NOAA
@@ -46,8 +46,7 @@ graph TD
     CLI_Config --> RedisDB
     CLI_Alert --> RedisDB
     CLI_Weather --> RedisDB
-    CLI_Web --> RedisDB
-    
+        
     %% LED-Kurokku Components
     LED_Core[Core LED Controller]
     LED_Widgets[Widget System]
