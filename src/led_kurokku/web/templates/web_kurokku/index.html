@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual TM1637 Display</title>
+    <style>
+        :root {
+            --display-color: #ff0000;
+            --inactive-color: #220000;
+            /* Darker for more contrast */
+            --glow-intensity: 0px;
+            --segment-opacity: 0.5;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #111;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .display-container {
+            background-color: #000;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            width: 90vw;
+            max-width: 1200px;
+        }
+
+        .seven-segment-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5vw;
+            height: 30vh;
+        }
+
+        .digit {
+            position: relative;
+            width: 20vw;
+            height: 100%;
+            max-width: 250px;
+        }
+
+        .segment {
+            position: absolute;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            box-shadow: 0 0 var(--glow-intensity) var(--display-color);
+            background-color: var(--inactive-color);
+        }
+
+        /* Horizontal segments with rounded caps */
+        .segment-a,
+        .segment-d,
+        .segment-g {
+            width: 90%;
+            height: 8%;
+            left: 5%;
+            border-radius: 5vh;
+        }
+
+        .segment-a {
+            top: 0;
+        }
+
+        .segment-g {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Middle segment precisely centered */
+        .segment-d {
+            bottom: 0;
+        }
+
+        /* Vertical segments with rounded caps */
+        .segment-b,
+        .segment-c,
+        .segment-e,
+        .segment-f {
+            width: 10%;
+            height: 45%;
+            border-radius: 5vh;
+        }
+
+        .segment-b {
+            top: 5%;
+            right: 0;
+        }
+
+        .segment-c {
+            bottom: 5%;
+            right: 0;
+        }
+
+        .segment-e {
+            bottom: 5%;
+            left: 0;
+        }
+
+        .segment-f {
+            top: 5%;
+            left: 0;
+        }
+
+        /* Colon */
+        .colon {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            width: 2vw;
+            height: 100%;
+            margin: 0 0.5vw;
+        }
+
+        .colon-dot {
+            width: 2vw;
+            height: 2vw;
+            max-width: 30px;
+            max-height: 30px;
+            border-radius: 50%;
+            background-color: var(--inactive-color);
+            transition: all 0.2s ease;
+            box-shadow: 0 0 var(--glow-intensity) var(--display-color);
+        }
+
+        /* Settings gear icon */
+        .settings-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .settings-icon:hover {
+            transform: rotate(30deg);
+        }
+
+        .settings-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+
+        /* Controls panel */
+        .controls-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(20, 20, 20, 0.9);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            transform: translateY(150%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .controls-panel.visible {
+            transform: translateY(0);
+        }
+
+        .controls-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .controls-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #fff;
+        }
+
+        .control-groups {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+            background-color: #222;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .control-group h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+        }
+
+        /* Sliders and inputs */
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .control-row label {
+            flex: 1;
+        }
+
+        .control-row input[type="range"] {
+            flex: 2;
+            height: 8px;
+            border-radius: 4px;
+            background-color: #444;
+            outline: none;
+        }
+
+        .control-row input[type="color"] {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            background-color: transparent;
+            cursor: pointer;
+        }
+
+        .value-display {
+            width: 40px;
+            text-align: center;
+            margin-left: 10px;
+            background-color: #333;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .seven-segment-display {
+                height: 20vh;
+            }
+
+            .digit {
+                width: 18vw;
+            }
+
+            .control-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="display-container">
+        <div class="seven-segment-display">
+            <div class="digit" id="digit-0">
+                <div class="segment segment-a" data-segment="0"></div>
+                <div class="segment segment-b" data-segment="1"></div>
+                <div class="segment segment-c" data-segment="2"></div>
+                <div class="segment segment-d" data-segment="3"></div>
+                <div class="segment segment-e" data-segment="4"></div>
+                <div class="segment segment-f" data-segment="5"></div>
+                <div class="segment segment-g" data-segment="6"></div>
+            </div>
+            <div class="digit" id="digit-1">
+                <div class="segment segment-a" data-segment="0"></div>
+                <div class="segment segment-b" data-segment="1"></div>
+                <div class="segment segment-c" data-segment="2"></div>
+                <div class="segment segment-d" data-segment="3"></div>
+                <div class="segment segment-e" data-segment="4"></div>
+                <div class="segment segment-f" data-segment="5"></div>
+                <div class="segment segment-g" data-segment="6"></div>
+            </div>
+            <div class="colon">
+                <div class="colon-dot" id="colon-top"></div>
+                <div class="colon-dot" id="colon-bottom"></div>
+            </div>
+            <div class="digit" id="digit-2">
+                <div class="segment segment-a" data-segment="0"></div>
+                <div class="segment segment-b" data-segment="1"></div>
+                <div class="segment segment-c" data-segment="2"></div>
+                <div class="segment segment-d" data-segment="3"></div>
+                <div class="segment segment-e" data-segment="4"></div>
+                <div class="segment segment-f" data-segment="5"></div>
+                <div class="segment segment-g" data-segment="6"></div>
+            </div>
+            <div class="digit" id="digit-3">
+                <div class="segment segment-a" data-segment="0"></div>
+                <div class="segment segment-b" data-segment="1"></div>
+                <div class="segment segment-c" data-segment="2"></div>
+                <div class="segment segment-d" data-segment="3"></div>
+                <div class="segment segment-e" data-segment="4"></div>
+                <div class="segment segment-f" data-segment="5"></div>
+                <div class="segment segment-g" data-segment="6"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Icon -->
+    <div class="settings-icon" id="settings-toggle">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
+        </svg>
+    </div>
+
+    <!-- Controls Panel (initially hidden) -->
+    <div class="controls-panel" id="controls-panel">
+        <div class="controls-header">
+            <h2>Display Settings</h2>
+            <button class="close-button" id="close-settings">&times;</button>
+        </div>
+        <div class="control-groups">
+            <div class="control-group">
+                <h3>Display Settings</h3>
+                <div class="control-row">
+                    <label for="brightness">Brightness:</label>
+                    <input type="range" id="brightness" min="0" max="7" value="2" disabled>
+                    <span id="brightness-value" class="value-display">2</span>
+                </div>
+                <div class="control-row">
+                    <label for="display-color">Display Color:</label>
+                    <input type="color" id="display-color" value="#ff0000">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Visual Effects</h3>
+                <div class="control-row">
+                    <label for="glow-effect">Glow Intensity:</label>
+                    <input type="range" id="glow-effect" min="0" max="100" value="0" disabled>
+                    <span id="glow-value" class="value-display">0</span>
+                </div>
+                <div class="control-row">
+                    <label for="segment-size">Segment Size:</label>
+                    <input type="range" id="segment-size" min="80" max="120" value="92">
+                    <span id="size-value" class="value-display">92%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+
+        // Get display elements
+        const digits = [
+            document.getElementById('digit-0'),
+            document.getElementById('digit-1'),
+            document.getElementById('digit-2'),
+            document.getElementById('digit-3')
+        ];
+
+        const colonTop = document.getElementById('colon-top');
+        const colonBottom = document.getElementById('colon-bottom');
+        const brightnessSlider = document.getElementById('brightness');
+        const brightnessValue = document.getElementById('brightness-value');
+        const colorPicker = document.getElementById('display-color');
+        const glowEffectSlider = document.getElementById('glow-effect');
+        const glowValue = document.getElementById('glow-value');
+        const segmentSizeSlider = document.getElementById('segment-size');
+        const sizeValue = document.getElementById('size-value');
+
+        // Initial color setup
+        let displayColor = '#ff0000';
+        let glowIntensity = 0;
+
+        // Initialize custom controls
+        colorPicker.addEventListener('input', function (e) {
+            displayColor = e.target.value;
+            document.documentElement.style.setProperty('--display-color', displayColor);
+
+            // Update inactive color (much darker version of active color for better contrast)
+            const r = parseInt(displayColor.substr(1, 2), 16);
+            const g = parseInt(displayColor.substr(3, 2), 16);
+            const b = parseInt(displayColor.substr(5, 2), 16);
+            const inactiveColor = `rgb(${Math.floor(r / 7)}, ${Math.floor(g / 7)}, ${Math.floor(b / 7)})`;
+            document.documentElement.style.setProperty('--inactive-color', inactiveColor);
+
+            // Update all active segments with new color
+            updateAllSegments();
+        });
+
+        // Removed the glow slider event listener since glow is now auto-controlled by brightness
+
+        segmentSizeSlider.addEventListener('input', function (e) {
+            const sizePercent = e.target.value;
+            sizeValue.textContent = sizePercent + '%';
+
+            // Calculate sizes based on the slider value
+            const horizontalWidth = (sizePercent / 100) * 90;
+            const horizontalHeight = (sizePercent / 100) * 8;
+            const verticalWidth = (sizePercent / 100) * 10;
+            const verticalHeight = (sizePercent / 100) * 45;
+
+            // Update horizontal segments
+            document.querySelectorAll('.segment-a, .segment-d, .segment-g').forEach(segment => {
+                segment.style.width = horizontalWidth + '%';
+                segment.style.height = horizontalHeight + '%';
+                segment.style.left = ((100 - horizontalWidth) / 2) + '%';
+            });
+
+            // Update vertical segments
+            document.querySelectorAll('.segment-b, .segment-c, .segment-e, .segment-f').forEach(segment => {
+                segment.style.width = verticalWidth + '%';
+                segment.style.height = verticalHeight + '%';
+            });
+
+            // Adjust position of segments
+            const topOffset = (sizePercent / 100) * 5;
+            document.querySelectorAll('.segment-b, .segment-f').forEach(segment => {
+                segment.style.top = topOffset + '%';
+            });
+
+            document.querySelectorAll('.segment-c, .segment-e').forEach(segment => {
+                segment.style.bottom = topOffset + '%';
+            });
+
+            // Adjust all middle segments to be precisely centered
+            document.querySelectorAll('.segment-g').forEach(segment => {
+                segment.style.top = '50%';
+                segment.style.transform = 'translateY(-50%)';
+            });
+        });
+
+        // Function to calculate brightness-based glow and opacity
+        function calculateBrightnessEffects(brightness) {
+            // Base opacity from 0.3 to 1.0
+            const opacity = 0.3 + (brightness / 7) * 0.7;
+
+            // Set glow intensity directly based on brightness (0-7 to 0-100)
+            const autoGlowIntensity = (brightness / 7) * 100;
+            // Update the slider to match
+            glowEffectSlider.value = autoGlowIntensity;
+            glowValue.textContent = Math.round(autoGlowIntensity);
+
+            // Calculate glow pixels (0-30px)
+            const glowPx = (autoGlowIntensity / 100) * 30;
+            // Update CSS variable
+            document.documentElement.style.setProperty('--glow-intensity', glowPx + 'px');
+
+            return {
+                opacity,
+                glowPx: glowPx + 'px'
+            };
+        }
+
+        // Function to update all segments (used when color or effects change)
+        function updateAllSegments() {
+            const brightness = parseInt(brightnessSlider.value);
+            const effects = calculateBrightnessEffects(brightness);
+
+            // Update all active segments
+            document.querySelectorAll('.segment.active').forEach(segment => {
+                segment.style.boxShadow = `0 0 ${effects.glowPx} var(--display-color)`;
+                segment.style.opacity = effects.opacity;
+            });
+
+            // Update active colon dots
+            if (colonTop.classList.contains('active')) {
+                colonTop.style.boxShadow = `0 0 ${effects.glowPx} var(--display-color)`;
+                colonTop.style.opacity = effects.opacity;
+                colonBottom.style.boxShadow = `0 0 ${effects.glowPx} var(--display-color)`;
+                colonBottom.style.opacity = effects.opacity;
+            }
+        }
+
+        // Function to update display based on data from server
+        function updateDisplay(data) {
+            // Get brightness effects
+            const effects = calculateBrightnessEffects(data.brightness);
+
+            // Update digits
+            data.digits.forEach((digitValue, index) => {
+                const segments = digits[index].querySelectorAll('.segment');
+                segments.forEach(segment => {
+                    const segmentBit = parseInt(segment.dataset.segment);
+                    const isActive = (digitValue & (1 << segmentBit)) !== 0;
+
+                    // First remove active class from all segments
+                    segment.classList.remove('active');
+                    segment.style.opacity = 1;
+                    segment.style.backgroundColor = 'var(--inactive-color)';
+                    segment.style.boxShadow = 'none';
+
+                    // Then add active class to segments that should be active
+                    if (isActive) {
+                        segment.classList.add('active');
+                        segment.style.backgroundColor = 'var(--display-color)';
+                        segment.style.opacity = effects.opacity;
+                        segment.style.boxShadow = `0 0 ${effects.glowPx} var(--display-color)`;
+                    }
+                });
+            });
+
+            // Update colon
+            const colonActive = data.colon;
+            colonTop.classList.remove('active');
+            colonBottom.classList.remove('active');
+            colonTop.style.backgroundColor = 'var(--inactive-color)';
+            colonBottom.style.backgroundColor = 'var(--inactive-color)';
+            colonTop.style.boxShadow = 'none';
+            colonBottom.style.boxShadow = 'none';
+            colonTop.style.opacity = 1;
+            colonBottom.style.opacity = 1;
+
+            if (colonActive) {
+                colonTop.classList.add('active');
+                colonBottom.classList.add('active');
+                colonTop.style.backgroundColor = 'var(--display-color)';
+                colonBottom.style.backgroundColor = 'var(--display-color)';
+                colonTop.style.opacity = effects.opacity;
+                colonBottom.style.opacity = effects.opacity;
+                colonTop.style.boxShadow = `0 0 ${effects.glowPx} var(--display-color)`;
+                colonBottom.style.boxShadow = `0 0 ${effects.glowPx} var(--display-color)`;
+            }
+
+            // Update brightness display
+            brightnessSlider.value = data.brightness;
+            brightnessValue.textContent = data.brightness;
+        }
+
+        // WebSocket event handlers
+        ws.onopen = function () {
+            console.log('WebSocket connection established');
+        };
+
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            updateDisplay(data);
+        };
+
+        ws.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = function () {
+            console.log('WebSocket connection closed');
+            // Attempt to reconnect after a delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        };
+
+        // Settings panel toggle
+        const settingsToggle = document.getElementById('settings-toggle');
+        const controlsPanel = document.getElementById('controls-panel');
+        const closeSettings = document.getElementById('close-settings');
+
+        // Show settings panel when gear icon is clicked
+        settingsToggle.addEventListener('click', function () {
+            controlsPanel.classList.add('visible');
+        });
+
+        // Hide settings panel when close button is clicked
+        closeSettings.addEventListener('click', function () {
+            controlsPanel.classList.remove('visible');
+        });
+
+        // Also hide settings when clicking outside the panel
+        document.addEventListener('click', function (event) {
+            if (!controlsPanel.contains(event.target) &&
+                event.target !== settingsToggle &&
+                !settingsToggle.contains(event.target)) {
+                controlsPanel.classList.remove('visible');
+            }
+        });
+
+        // Initialize with default settings
+        document.documentElement.style.setProperty('--display-color', displayColor);
+        // Set initial segment size
+        segmentSizeSlider.dispatchEvent(new Event('input'));
+    </script>
+</body>
+
+</html>

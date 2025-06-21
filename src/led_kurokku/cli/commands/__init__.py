@@ -5,6 +5,5 @@ from .config import config
 from .template import template
 from .alert import alert
 from .weather import weather
-from .web import web
 
-__all__ = ["instances", "config", "template", "alert", "weather", "web"]
+__all__ = ["instances", "config", "template", "alert", "weather"]

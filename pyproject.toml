@@ -16,6 +16,7 @@ dependencies = [
 [project.scripts]
 led-kurokku = "led_kurokku.main:main"
 kurokku-cli = "led_kurokku.cli_main:cli"
+web-kurokku = "led_kurokku.web_server:main"
 
 [build-system]
 requires = ["hatchling"]
