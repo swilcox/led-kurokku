@@ -19,6 +19,18 @@ def test_convert_to_12_hour_format():
     assert _convert_to_12_hour_format(23) == 11
 
 
+def test_tm1637_show_time_leading_blank():
+    tm = TM1637(driver=ConsoleDriver())
+    
+    # Test 12-hour mode with leading blank for single digit hours
+    tm.show_time(9, 30, colon=True, leading_blank=True)
+    # Should display " 9:30" (blank space for tens digit)
+    
+    # Test 24-hour mode without leading blank
+    tm.show_time(9, 30, colon=True, leading_blank=False)
+    # Should display "09:30" (zero for tens digit)
+
+
 @pytest.mark.asyncio
 async def test_clock_widget(fake_async_redis):
     config = ClockWidgetConfig(

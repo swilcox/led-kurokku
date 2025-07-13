@@ -50,6 +50,6 @@ class ClockWidget(DisplayWidget):
                 minutes = datetime.now().minute
                 if not self.config.use_24_hour_format:
                     hours = _convert_to_12_hour_format(hours)
-                self.tm.show_time(hours, minutes, colon=colon)
+                self.tm.show_time(hours, minutes, colon=colon, leading_blank=not self.config.use_24_hour_format)
                 if await self._sleep_and_check_stop(timing):
                     break

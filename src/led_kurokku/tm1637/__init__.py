@@ -129,12 +129,15 @@ class TM1637:
 
         self.display(segments)
 
-    def show_time(self, hour: int, minute: int, colon=True):
+    def show_time(self, hour: int, minute: int, colon=True, leading_blank=False):
         """Display time in HH:MM format with optional colon"""
         segments = [0] * 4
 
         # Hours
-        segments[0] = self.SEGMENTS[str(hour // 10)]
+        if leading_blank and hour < 10:
+            segments[0] = self.SEGMENTS[" "]  # Blank for single digit hours in 12-hour mode
+        else:
+            segments[0] = self.SEGMENTS[str(hour // 10)]
         segments[1] = self.SEGMENTS[str(hour % 10)]
 
         # Minutes
