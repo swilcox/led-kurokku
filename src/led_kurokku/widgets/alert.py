@@ -70,6 +70,8 @@ class AlertWidget(DisplayWidget):
                 if len(alert.message) <= self.tm.display_length:
                     self.tm.show_text(alert.message)
                     if await self._sleep_and_check_stop(alert.display_duration):
+                        if alert.delete_after_display:
+                            await self.redis_client.delete(alert.id)
                         break
                 else:
                     await self.interruptable_scrolled_display(
@@ -80,4 +82,8 @@ class AlertWidget(DisplayWidget):
                         sleep_before_repeat=self.config.sleep_before_repeat,
                         duration=alert.display_duration,
                     )
+                    if not self.okay_to_display():
+                        if alert.delete_after_display:
+                            await self.redis_client.delete(alert.id)
+                        break
             break

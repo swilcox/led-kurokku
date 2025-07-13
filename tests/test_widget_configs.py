@@ -92,7 +92,7 @@ def test_message_widget_config_defaults():
     assert config.widget_type == "message"
     assert config.enabled is True
     assert config.duration == 5
-    assert config.message == "LED Kurokku"
+    assert config.message == ""  # Default empty message
     assert config.dynamic_source is None
     assert config.scroll_speed == 0.1
     assert config.repeat is False

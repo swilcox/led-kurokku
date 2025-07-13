@@ -14,7 +14,7 @@ class MessageWidgetConfig(WidgetConfig):
 
     widget_type: Literal["message"] = "message"
 
-    message: str = "LED Kurokku"
+    message: str = ""
     dynamic_source: str | None = None
     scroll_speed: float = 0.1
     repeat: bool = False
@@ -51,6 +51,9 @@ class MessageWidget(DisplayWidget):
                     sleep_before_repeat=self.config.sleep_before_repeat,
                     duration=self._duration,
                 )
+            elif not len(message):
+                logger.warning("MessageWidget received an empty message.")
+                break
             else:
                 self.tm.show_text(message)
             if await self._sleep_and_check_stop(self.config.sleep_before_repeat):

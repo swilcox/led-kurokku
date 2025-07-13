@@ -1,17 +1,15 @@
 import asyncio
 import atexit
-from dataclasses import dataclass
 import logging
 import os
 import signal
 import sys
-from typing import Annotated
 
 import click
+import redis.asyncio as redis
 
 from .core import display_widgets, event_listener
 from .utils.logging import setup_logging
-import redis.asyncio as redis
 
 
 async def event_loop(force_console=False):
