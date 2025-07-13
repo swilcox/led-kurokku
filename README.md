@@ -2,6 +2,8 @@
 
 The over-powered LED clock for raspberry pis and the TM1637 LED Display.
 
+![animated_gif](./docs/example.gif)
+
 ## Overview
 
 LED-Kurokku is a versatile system for controlling TM1637 LED displays with multiple widgets, automated brightness control, and weather integration. The system consists of:
