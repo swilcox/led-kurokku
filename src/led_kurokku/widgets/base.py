@@ -39,9 +39,10 @@ class DisplayWidget:
         config_event: asyncio.Event = None,
         config: WidgetConfig = None,
     ):
-        """
-        Initialize the BaseWidget with.
-        :param config_queue: An asyncio.Queue for receiving configuration updates.
+        """Initialize the DisplayWidget.
+
+        :param config_event: An ``asyncio.Event`` that signals configuration
+            changes.
         """
         self.config_event = config_event
         self.config = config
