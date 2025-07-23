@@ -19,16 +19,37 @@ def test_convert_to_12_hour_format():
     assert _convert_to_12_hour_format(23) == 11
 
 
-def test_tm1637_show_time_leading_blank():
+def test_tm1637_show_time_leading_blank(monkeypatch):
+    captured: list[tuple[list[int], bool]] = []
+
+    def capture_display(self, segments: list[int], colon: bool = False) -> None:
+        captured.append((segments, colon))
+
+    monkeypatch.setattr(ConsoleDriver, "display", capture_display)
+
     tm = TM1637(driver=ConsoleDriver())
-    
+
     # Test 12-hour mode with leading blank for single digit hours
     tm.show_time(9, 30, colon=True, leading_blank=True)
-    # Should display " 9:30" (blank space for tens digit)
-    
+
+    expected_blank = [
+        TM1637.SEGMENTS[" "],
+        TM1637.SEGMENTS["9"],
+        TM1637.SEGMENTS["3"],
+        TM1637.SEGMENTS["0"],
+    ]
+    assert captured[0] == (expected_blank, True)
+
     # Test 24-hour mode without leading blank
     tm.show_time(9, 30, colon=True, leading_blank=False)
-    # Should display "09:30" (zero for tens digit)
+
+    expected_zero = [
+        TM1637.SEGMENTS["0"],
+        TM1637.SEGMENTS["9"],
+        TM1637.SEGMENTS["3"],
+        TM1637.SEGMENTS["0"],
+    ]
+    assert captured[1] == (expected_zero, True)
 
 
 @pytest.mark.asyncio
