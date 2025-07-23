@@ -20,7 +20,6 @@ Widget types:
 * clock
   * configurable to show either 12/24 hour format.
     * when in 12 hour format (the colon blinks double while PM and single blink during AM).
-  * 
 * message
   * these can be static messages or dynamically loaded on display from a Redis compatible store. So if you have a separate process updating a temperature reading in redis, you can have a static message that displays that reading. 
 * alert
