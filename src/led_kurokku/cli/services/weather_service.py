@@ -4,6 +4,7 @@ Weather service for LED-Kurokku CLI server.
 
 import asyncio
 import json
+import signal
 from datetime import datetime
 
 from loguru import logger
@@ -350,6 +351,9 @@ def run_weather_service(config: WeatherConfig | None = None):
         def signal_handler():
             logger.info("Stopping weather service...")
             loop.create_task(service.stop())
+
+        loop.add_signal_handler(signal.SIGINT, signal_handler)
+        loop.add_signal_handler(signal.SIGTERM, signal_handler)
 
         # Start the service
         await service.start()
