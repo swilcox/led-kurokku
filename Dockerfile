@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
@@ -12,14 +12,14 @@ RUN apt-get update && apt-get install -y \
 # Copy project files
 COPY pyproject.toml README.md LICENSE ./
 COPY src/ ./src/
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker/entrypoints/ /usr/local/bin/
 
 # Create non-root user but don't switch to it (we'll control user at runtime)
 RUN useradd -m appuser
 
 # Install dependencies including Raspberry Pi specific ones
 RUN pip install --no-cache-dir .[rpi] && \
-    chmod +x /usr/local/bin/docker-entrypoint.sh
+    chmod +x /usr/local/bin/*.sh
 
 # Default command (will run as root by default)
 ENTRYPOINT ["docker-entrypoint.sh"]

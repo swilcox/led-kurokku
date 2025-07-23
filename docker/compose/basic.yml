@@ -11,7 +11,9 @@ services:
     command: redis-server --appendonly yes --notify-keyspace-events KEA
 
   led-kurokku:
-    build: .
+    build:
+      context: ../..
+      dockerfile: Dockerfile
     restart: unless-stopped
     devices:
       - "/dev/gpiomem:/dev/gpiomem"
@@ -29,6 +31,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro  # Mount host timezone
       - /etc/timezone:/etc/timezone:ro    # Mount host timezone info
+    entrypoint: ["docker-entrypoint.sh"]
     command: --debug
 
 volumes:
