@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --notify-keyspace-events KEA
+
+  led-kurokku:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
+      - "/dev/mem:/dev/mem"
+    cap_add:
+      - SYS_RAWIO
+    privileged: true  # Required for GPIO access
+    user: root  # Run as root to ensure GPIO access
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    # - TZ=America/New_York  # Optionally, manually set your timezone here
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # Mount host timezone
+      - /etc/timezone:/etc/timezone:ro    # Mount host timezone info
+    entrypoint: ["docker-entrypoint.sh"]
+    command: --debug
+
+  weather-server:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    # - TZ=America/New_York  # Optionally, manually set your timezone here
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # Mount host timezone
+      - /etc/timezone:/etc/timezone:ro    # Mount host timezone info
+    entrypoint: ["weather-entrypoint.sh"]
+    command: []
+
+  web-server:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    # - TZ=America/New_York  # Optionally, manually set your timezone here
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # Mount host timezone
+      - /etc/timezone:/etc/timezone:ro    # Mount host timezone info
+    entrypoint: ["web-entrypoint.sh"]
+    command: ["--host", "0.0.0.0", "--port", "8080"]
+
+volumes:
+  redis-data:
