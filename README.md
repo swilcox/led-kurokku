@@ -92,6 +92,7 @@ Or you can choose to use the virtual or real display but also log debug level ou
     * `widget_type` - one of `clock`, `alert`, `message`, `animation`
     * `enabled` - boolean (defaults to `true`)
     * `duration` - number of seconds to display (defaults to `5`)
+    * `cron` - an optional cron string to define when to display (example: `*/10 * * * *` only displays every 10 minutes)
     * *additional widget_type specific configuration options*
   * `brightness` - brightness settings
     * `begin` - time to begin high brightness (e.g. `08:00`)
