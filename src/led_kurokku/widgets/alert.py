@@ -3,6 +3,7 @@ import json
 from typing import Literal
 
 from pydantic import BaseModel
+import pycron
 
 from .base import DisplayWidget, WidgetConfig
 
@@ -67,6 +68,8 @@ class AlertWidget(DisplayWidget):
             alerts.sort(key=lambda x: (x.priority, x.timestamp))
 
             for alert in alerts:
+                if alert.priority == 10 and not pycron.is_now("*/10 * * * *"):
+                    continue  # Skip low-priority alerts if not the right time
                 if len(alert.message) <= self.tm.display_length:
                     self.tm.show_text(alert.message)
                     if await self._sleep_and_check_stop(alert.display_duration):

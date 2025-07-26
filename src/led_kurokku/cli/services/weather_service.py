@@ -233,13 +233,17 @@ class WeatherService:
                 # Set new alerts
                 for i, alert in enumerate(alerts):
                     redis_key = f"{REDIS_WEATHER_ALERT_KEY_PREFIX}{location.name}:{i}"
+                    
+                    # Determine priority based on event type
+                    alert_priority = self.config.get_alert_priority(alert["message"])
+                    
                     await client.set(
                         redis_key,
                         json.dumps(
                             {
                                 "timestamp": datetime.now().isoformat(),
                                 "message": alert["message"],
-                                "priority": 1,  # Higher priority than regular alerts
+                                "priority": alert_priority,
                                 "display_duration": (len(alert["message"]) * 0.3) + 3.0,
                                 "delete_after_display": False,
                             }

@@ -26,6 +26,9 @@ class MessageWidget(DisplayWidget):
         self,
     ):
         logger.debug(f"MessageWidget started with config: {self.config}")
+        if not self.check_cron():
+            logger.debug("Cron minute check failed, skipping display.")
+            return
         while self.okay_to_display():
             message = self.config.message
             if self.config.dynamic_source:

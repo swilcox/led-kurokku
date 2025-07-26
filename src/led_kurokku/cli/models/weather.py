@@ -72,6 +72,7 @@ class WeatherConfig(BaseModel):
         temperature_update_interval: Interval in seconds to update temperature data
         alerts_update_interval: Interval in seconds to update alert data
         openweather_api_key: API key for OpenWeather
+        alert_priorities: Configuration for alert priorities by event type
     """
 
     locations: Annotated[
@@ -81,6 +82,19 @@ class WeatherConfig(BaseModel):
     temperature_update_interval: int = 300  # 5 minutes
     alerts_update_interval: int = 900  # 15 minutes
     openweather_api_key: str | None = None
+    alert_priorities: Annotated[
+        dict[str, int],
+        Field(
+            default_factory=lambda: {
+                "heat advisory": 10,
+                "excessive heat warning": 5,
+                "winter storm warning": 1,
+                "tornado warning": 1,
+                "severe thunderstorm warning": 1,
+            },
+            description="Priority mapping for different alert types (higher numbers = lower priority)",
+        ),
+    ]
 
     # Class variable for configuration path
     CONFIG_PATH: ClassVar[Path] = None
@@ -130,6 +144,31 @@ class WeatherConfig(BaseModel):
 
         with open(config_path, "w") as f:
             f.write(self.model_dump_json(indent=2))
+
+    def get_alert_priority(self, event_type: str) -> int:
+        """
+        Get the priority for a specific alert event type.
+        
+        Args:
+            event_type: The event type from the weather alert
+            
+        Returns:
+            Priority value (higher numbers = lower priority), defaults to 1 if not configured
+        """
+        # Normalize the event type to lowercase for matching
+        normalized_event = event_type.lower().strip()
+        
+        # Check for exact match first
+        if normalized_event in self.alert_priorities:
+            return self.alert_priorities[normalized_event]
+        
+        # Check for partial matches (e.g., "Heat Advisory" matches "heat advisory")
+        for configured_event, priority in self.alert_priorities.items():
+            if configured_event.lower() in normalized_event:
+                return priority
+        
+        # Default priority for unconfigured alerts
+        return 1
 
 
 # Location registry functions

@@ -1,6 +1,6 @@
 [project]
 name = "led-kurokku"
-version = "0.2.0"
+version = "0.3.0"
 readme = "README.md"
 authors = [{ name = "swilcox", email = "steven@wilcoxzone.com" }]
 requires-python = ">=3.11"
@@ -11,6 +11,7 @@ dependencies = [
     "pyyaml>=6.0.1",
     "aiohttp>=3.8.5",
     "loguru>=0.7.3",
+    "pycron>=3.2.0",
 ]
 
 [project.scripts]
