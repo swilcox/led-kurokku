@@ -1,4 +1,3 @@
-from datetime import datetime
 import json
 import logging
 from typing import Literal
@@ -27,25 +26,9 @@ class AnimationWidgetConfig(WidgetConfig):
     scroll_speed: float = 0.1
     repeat: bool = True
     sleep_before_repeat: float = 0.0
-    cron_minute: str | None = None
 
 
 class AnimationWidget(DisplayWidget):
-    def check_cron(self):
-        """
-        Check if the current minute matches the cron expression.
-        """
-        if self.config.cron_minute is None or self.config.cron_minute in ["", "*"]:
-            return True
-        if "/" in self.config.cron_minute:
-            # Handle cron expressions with step values
-            step = int(self.config.cron_minute.split("/")[1])
-            if datetime.now().minute % step != 0:
-                return False
-        elif int(self.config.cron_minute) != datetime.now().minute:
-            return False
-        return True
-
     async def display(self):
         logger.debug(f"AnimationWidget started with config: {self.config}")
         if not self.check_cron():

@@ -4,6 +4,7 @@ from enum import StrEnum
 from datetime import datetime
 import logging
 
+import pycron
 from pydantic import BaseModel
 from redis.asyncio import Redis
 
@@ -27,6 +28,7 @@ class WidgetConfig(BaseModel):
     widget_type: WidgetType
     enabled: bool = True
     duration: int = 5  # seconds
+    cron: str = None  # Cron expression for scheduling
 
 
 class DisplayWidget:
@@ -49,6 +51,18 @@ class DisplayWidget:
         self.redis_client = redis_client
         self._duration = self.config.duration if self.config else self.DEFAULT_DURATION
         self._start_time = None
+
+    def check_cron(self):
+        """
+        Check if the current minute matches the cron expression.
+        """
+        try:
+            if self.config.cron is not None and not pycron.is_now(self.config.cron):
+                return False
+        except ValueError as e:
+            logger.error(f"Invalid cron expression '{self.config.cron}': {e}")
+            return False
+        return True
 
     async def _sleep_and_check_stop(self, duration):
         """
