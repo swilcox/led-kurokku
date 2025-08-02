@@ -23,7 +23,7 @@ def save_yaml_config(config: Dict[str, Any], file_path: str) -> None:
 def validate_config(config_data: Dict[str, Any]) -> Optional[models.ConfigSettings]:
     """Validate a configuration dictionary against the ConfigSettings model."""
     try:
-        return models.ConfigSettings.parse_obj(config_data)
+        return models.ConfigSettings.model_validate(config_data)
     except ValidationError as e:
         print(f"Error validating configuration: {e}")
         return None

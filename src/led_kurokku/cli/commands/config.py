@@ -2,6 +2,8 @@
 CLI commands for managing LED-Kurokku configurations.
 """
 
+import sys
+
 import click
 import yaml
 import json
@@ -38,7 +40,11 @@ def set_instance_config(instance_name: str, config_file: str, template: Optional
         return
 
     # Load the config file
-    config_data = load_yaml_config(config_file)
+    try:
+        config_data = load_yaml_config(config_file)
+    except yaml.YAMLError as e:
+        click.echo(f"Error loading configuration file: {e}", err=True)
+        sys.exit(1)
 
     # Apply template if specified
     if template:
@@ -50,8 +56,8 @@ def set_instance_config(instance_name: str, config_file: str, template: Optional
     # Validate the config
     config_settings = validate_config(config_data)
     if not config_settings:
-        click.echo("Invalid configuration.")
-        return
+        click.echo("Invalid configuration file.", err=True)
+        sys.exit(1)
 
     # Set the config
     success = run_async(set_config(instance, config_settings))

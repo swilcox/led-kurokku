@@ -1,6 +1,6 @@
 [project]
 name = "led-kurokku"
-version = "0.3.0"
+version = "0.3.1"
 readme = "README.md"
 authors = [{ name = "swilcox", email = "steven@wilcoxzone.com" }]
 requires-python = ">=3.11"

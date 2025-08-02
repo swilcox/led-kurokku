@@ -28,7 +28,7 @@ class WidgetConfig(BaseModel):
     widget_type: WidgetType
     enabled: bool = True
     duration: int = 5  # seconds
-    cron: str = None  # Cron expression for scheduling
+    cron: str | None = None  # Cron expression for scheduling
 
 
 class DisplayWidget:
