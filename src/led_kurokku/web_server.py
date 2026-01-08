@@ -11,8 +11,8 @@ import click
 import redis.asyncio as redis
 
 from .core import display_widgets, event_listener
-from .tm1637 import TM1637
-from .tm1637.factory import create_driver, DriverType
+from .display_factory import create_display, DisplayType
+from .tm1637.factory import DriverType
 from .tm1637.base_driver import BaseDriver
 from .utils.logging import setup_logging
 
@@ -26,7 +26,7 @@ WEB_TEMPLATE_DIR = pathlib.Path(__file__).parent / "web" / "templates" / "web_ku
 class WebServer:
     """
     Web server for LED-Kurokku with WebSocket support.
-    Serves a web page with a virtual TM1637 display and
+    Serves a web page with a virtual display (TM1637 or HT16K33) and
     provides WebSocket connections for real-time updates.
     """
 
@@ -35,24 +35,29 @@ class WebServer:
         redis_client: redis.Redis | None = None,
         driver_type: DriverType = DriverType.WEBSOCKET,
         driver_instance: BaseDriver | None = None,
+        display_type: str = "tm1637",
     ):
         """
         Initialize the web server.
 
         :param redis_client: Optional Redis client for state management.
-        :param driver_type: Type of TM1637 driver to use.
+        :param driver_type: Type of driver to use.
         :param driver_instance: Optional existing driver instance to use.
+        :param display_type: Hardware display type ("tm1637" or "ht16k33").
         """
         self.app = web.Application()
         self.redis_client = redis_client
+        self.display_type = display_type
 
-        # Use the provided driver instance or create a new one
-        if driver_instance:
-            self.tm1637_driver = driver_instance
-        else:
-            self.tm1637_driver = create_driver(driver_type=driver_type)
-
-        self.tm1637 = TM1637(driver=self.tm1637_driver)
+        # Create display using unified factory
+        self.display = create_display(
+            display_type=DisplayType(display_type),
+            driver_type=driver_type,
+            driver_instance=driver_instance,
+        )
+        # Keep backward compatibility with tm1637 naming
+        self.tm1637 = self.display
+        self.tm1637_driver = self.display.driver
         self.clients: dict[str, asyncio.Queue] = {}
 
         # Set up routes
@@ -191,10 +196,14 @@ async def run_web_server(host: str = "0.0.0.0", port: int = 8080) -> None:
         await server.start(host=host, port=port)
 
 
-async def web_event_loop(host: str, port: int):
+async def web_event_loop(host: str, port: int, display_type: str = "tm1637"):
     """
     Integrated event loop for the web server with the core application logic.
     This combines the web server with the main display_widgets functionality.
+
+    :param host: Host address to bind to.
+    :param port: Port to listen on.
+    :param display_type: Hardware display type ("tm1637" or "ht16k33").
     """
     # Get Redis configuration from environment variables
     redis_host = os.environ.get("REDIS_HOST", "localhost")
@@ -205,8 +214,8 @@ async def web_event_loop(host: str, port: int):
     stop_event = asyncio.Event()  # Create an asyncio.Event to signal stopping
     config_event = asyncio.Event()  # Event to signal configuration updates
 
-    # Create and start the web server
-    web_server = WebServer(driver_type=DriverType.WEBSOCKET)
+    # Create and start the web server with specified display type
+    web_server = WebServer(driver_type=DriverType.WEBSOCKET, display_type=display_type)
     web_server_task = asyncio.create_task(web_server.start(host=host, port=port))
 
     async with redis.Redis(host=redis_host, port=redis_port, db=0) as redis_client:
@@ -223,6 +232,7 @@ async def web_event_loop(host: str, port: int):
                     force_console=False,
                     driver_type=DriverType.WEBSOCKET,
                     driver_instance=web_server.tm1637_driver,
+                    display_type=display_type,
                 )
             ),
             web_server_task,
@@ -250,15 +260,21 @@ async def web_event_loop(host: str, port: int):
 @click.option(
     "--log-file", default="", help="Log file path (empty for console logging)"
 )
-def main(host, port, debug, log_file):
-    """Start the LED-Kurokku web server with a virtual TM1637 display."""
+@click.option(
+    "--display-type",
+    type=click.Choice(["tm1637", "ht16k33"], case_sensitive=False),
+    default="tm1637",
+    help="Display hardware type (tm1637 or ht16k33)",
+)
+def main(host, port, debug, log_file, display_type):
+    """Start the LED-Kurokku web server with a virtual display."""
     log_level = logging.INFO if not debug else logging.DEBUG
     setup_logging(level=log_level, filename=log_file)
 
-    logger.info(f"Starting LED-Kurokku web server on {host}:{port}")
+    logger.info(f"Starting LED-Kurokku web server with {display_type} display on {host}:{port}")
 
     try:
-        asyncio.run(web_event_loop(host=host, port=port))
+        asyncio.run(web_event_loop(host=host, port=port, display_type=display_type))
     except KeyboardInterrupt:
         logger.info("Web server stopped by user")
     except Exception as e:

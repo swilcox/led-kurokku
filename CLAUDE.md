@@ -3,10 +3,20 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-LED-Kurokku is a display manager for TM1637 LED displays with three main components:
+LED-Kurokku is a display manager for LED displays (TM1637 and HT16K33) with three main components:
 1. **led-kurokku**: Core application that controls the LED display
 2. **kurokku-cli**: CLI tool for managing multiple LED-Kurokku instances and weather data
-3. **web-kurokku**: Web server with virtual TM1637 display for browser-based interaction
+3. **web-kurokku**: Web server with virtual display for browser-based interaction
+
+### Supported Displays
+- **TM1637**: 4-digit 7-segment display (default)
+  - Communication: 2-wire GPIO (CLK + DIO)
+  - Character support: Numbers and limited letters
+  - Brightness: 0-7 levels
+- **HT16K33**: 4-digit 14-segment display
+  - Communication: I2C (SDA + SCL)
+  - Character support: Full alphanumeric characters
+  - Brightness: 0-7 levels (mapped to 0-15 internally)
 
 ## Build/Test Commands
 - Run tests: `uv run pytest`
@@ -15,7 +25,9 @@ LED-Kurokku is a display manager for TM1637 LED displays with three main compone
 - Generate HTML coverage report: `uv run pytest --cov-report=html`
 - Install dependencies: `uv sync`
 - Install dev dependencies: `uv sync`
-- Install RPi dependencies: `uv sync --extra rpi`
+- Install RPi dependencies (TM1637): `uv sync --extra rpi`
+- Install HT16K33 dependencies: `uv sync --extra ht16k33`
+- Install all hardware dependencies: `uv sync --extra all-hardware`
 
 ## CLI Tool Usage
 - Managing instances: `kurokku-cli instances [add|remove|list|show|update]`
@@ -24,9 +36,32 @@ LED-Kurokku is a display manager for TM1637 LED displays with three main compone
 - Sending alerts: `kurokku-cli alert [send|list|clear]`
 - Weather service: `kurokku-cli weather [add-location|locations|remove-location|set-api-key|set-intervals|show-config|start]`
 
+## Display Type Selection
+LED-Kurokku supports runtime selection between TM1637 and HT16K33 displays:
+
+### Core Application
+- TM1637 (default): `led-kurokku`
+- HT16K33: `led-kurokku --display-type ht16k33`
+- Virtual display: `led-kurokku --console`
+- HT16K33 virtual: `led-kurokku --display-type ht16k33 --console`
+
+### Web Server
+- TM1637 virtual (default): `web-kurokku`
+- HT16K33 virtual: `web-kurokku --display-type ht16k33`
+- Custom host/port: `web-kurokku --host HOST --port PORT`
+
+### Environment Variables
+- TM1637 GPIO pins:
+  - `CLK_PIN` (default: 23)
+  - `DIO_PIN` (default: 24)
+- HT16K33 I2C settings:
+  - `HT16K33_ADDRESS` (default: 0x70)
+  - `HT16K33_BUS` (default: 1)
+  - `HT16K33_ADAFRUIT_LAYOUT` (default: false) - Set to "true" for Adafruit-style boards with colon gap
+
 ## Web Server Usage
-- Start web server: `web-kurokku [--host HOST] [--port PORT] [--debug] [--log-file FILE]`
-- Default: `web-kurokku` (runs on 0.0.0.0:8080)
+- Start web server: `web-kurokku [--host HOST] [--port PORT] [--display-type TYPE] [--debug] [--log-file FILE]`
+- Default: `web-kurokku` (runs on 0.0.0.0:8080 with TM1637 display)
 - Virtual display accessible at: `http://localhost:8080`
 - Features: Real-time WebSocket updates, interactive controls, responsive design
 
@@ -38,7 +73,20 @@ LED-Kurokku is a display manager for TM1637 LED displays with three main compone
 - `led_kurokku/web/`: Web server components
   - `templates/`: HTML templates for virtual display
   - `static/`: CSS, JavaScript, and other static assets
-- `led_kurokku/tm1637/websocket.py`: WebSocket driver for virtual display
+- `led_kurokku/tm1637/`: TM1637 7-segment display drivers
+  - `led.py`: Hardware GPIO driver
+  - `virtual.py`: Terminal virtual driver
+  - `console.py`: Console logging driver
+  - `websocket.py`: WebSocket driver for web display
+  - `factory.py`: Driver factory pattern
+- `led_kurokku/ht16k33/`: HT16K33 14-segment display drivers
+  - `led.py`: Hardware I2C driver
+  - `virtual.py`: Terminal virtual driver (14-segment)
+  - `console.py`: Console logging driver
+  - `websocket.py`: WebSocket driver for web display
+  - `segments.py`: 14-segment character mapping
+  - `factory.py`: Driver factory pattern
+- `led_kurokku/display_factory.py`: Unified factory for creating displays
 - `led_kurokku/web_server.py`: Main web server implementation
 
 ## Code Style Guidelines
