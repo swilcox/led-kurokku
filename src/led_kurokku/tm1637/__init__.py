@@ -55,7 +55,8 @@ class TM1637:
         "z": 0x5B,
         "-": 0x40,
         "_": 0x08,
-        "*": 0x63,  # degree symbol
+        "*": 0x63,  # degree symbol (legacy)
+        "°": 0x63,  # degree symbol
         " ": 0x00,
     }
 

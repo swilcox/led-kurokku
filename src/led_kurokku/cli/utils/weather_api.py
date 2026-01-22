@@ -61,19 +61,19 @@ def format_temperature_for_display(temp_f: float) -> str:
         temp_f: Temperature in Fahrenheit
 
     Returns:
-        Formatted 4-character string (e.g., "56*F")
+        Formatted 4-character string (e.g., "56°F")
     """
     # Round to nearest integer
     temp_int = round(temp_f)
 
     # Handle special cases
     if temp_int < -9:
-        return "LO*F"
+        return "LO°F"
     elif temp_int > 99:
-        return "HI*F"
+        return "HI°F"
 
     # Format the temperature
-    return f"{temp_int:2d}*F".replace(" ", "")
+    return f"{temp_int:2d}°F".replace(" ", "")
 
 
 async def get_temperature_data(
