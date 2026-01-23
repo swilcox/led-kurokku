@@ -46,7 +46,9 @@ class HT16K33LedDriver(BaseDriver):
         self._driver_name = "HT16K33-LED"
 
         # Buffer to track current display state (reduces I2C writes and flicker)
-        self._display_buffer = [0] * 16
+        # Initialize with 0xFF to ensure first clear() actually writes to hardware
+        # (otherwise comparison shows "no change" and garbage in display RAM persists)
+        self._display_buffer = [0xFF] * 16
 
         # Initialize I2C bus
         try:

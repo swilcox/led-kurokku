@@ -65,6 +65,7 @@ async def display_widgets(
         driver_instance=driver_instance,
     )
 
+    current_widget_type = None
     while True:
         if (
             config_data.brightness.end
@@ -78,6 +79,11 @@ async def display_widgets(
             if config_event.is_set() or stop_event.is_set():
                 break
             if widget_config.enabled:
+                # Clear display when switching between different widget types
+                # to prevent remnants from previous widget persisting
+                if current_widget_type != widget_config.widget_type:
+                    tm.clear()
+                    current_widget_type = widget_config.widget_type
                 widget = widget_factory(widget_config, tm, redis_client, config_event)
                 logger.debug(f"Displaying widget: {widget_config.widget_type}")
                 await widget.display()

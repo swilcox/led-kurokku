@@ -86,7 +86,7 @@ SEGMENTS_14 = {
     "k": 0x2470,  # Same as uppercase
     "l": 0x1200,  # I+L
     "m": 0x10D4,  # G1+G2+C+E+L
-    "n": 0x10D0,  # G1+G2+C+E+L
+    "n": 0x1050,  # G1+E+L
     "o": 0x00DC,  # G1+G2+E+C+D1+D2
     "p": 0x00F3,  # Same as uppercase
     "q": 0x00E7,  # A1+A2+F+G1+G2+B+C
@@ -104,7 +104,7 @@ SEGMENTS_14 = {
     " ": 0x0000,  # Space (all segments off)
     "-": 0x00C0,  # G1+G2 (minus sign)
     "_": 0x0008,  # D1 (underscore)
-    "°": 0x0063,  # Degree symbol (A+B+F+G1 - small circle in upper portion)
+    "°": 0x00E3,  # Degree symbol (A+B+F+G1+G2 - small circle in upper portion)
     "*": 0x2DC0,  # Asterisk (H+J+K+M diagonals + G1+G2 horizontals)
     ".": 0x8000,  # Decimal point (bit 15, if supported by hardware)
     ",": 0x8000,  # Comma (same as decimal point)
