@@ -5,7 +5,7 @@ Segment layout for 14-segment displays:
        A
    F  H I J  B
      G1  G2
-   E  M L K  C
+   E  K L M  C
        D
 
 Standard bit mapping (16-bit value):
@@ -20,9 +20,9 @@ Standard bit mapping (16-bit value):
   Bit 8: H (top left diagonal)
   Bit 9: I (top center vertical)
   Bit 10: J (top right diagonal)
-  Bit 11: K (bottom right diagonal)
+  Bit 11: K (bottom left diagonal)
   Bit 12: L (bottom center vertical)
-  Bit 13: M (bottom left diagonal)
+  Bit 13: M (bottom right diagonal)
   Bit 14: Decimal point (DP)
   Bit 15: Reserved/unused
 
@@ -66,11 +66,11 @@ SEGMENTS_14 = {
     "S": 0x00ED,  # A1+A2+F+G1+G2+C+D1+D2
     "T": 0x1201,  # A1+A2+I+L
     "U": 0x003E,  # F+B+C+D1+D2+E
-    "V": 0x4430,  # F+E+H+K
+    "V": 0x0C30,  # F+E+K+J
     "W": 0x2836,  # F+B+C+E+K+M
-    "X": 0x4D00,  # H+J+K+M (diagonals)
+    "X": 0x2D00,  # H+J+K+M (diagonals)
     "Y": 0x1500,  # H+J+L
-    "Z": 0x4409,  # A1+A2+D1+D2+H+K
+    "Z": 0x2409,  # A+D+J+M
 
     # Lowercase alphabet (selected characters that display well)
     "a": 0x00F7,  # Same as uppercase (some displays)
@@ -94,11 +94,11 @@ SEGMENTS_14 = {
     "s": 0x00ED,  # Same as uppercase
     "t": 0x00F8,  # F+G1+G2+E+D1+D2
     "u": 0x001C,  # B+C+D1+D2
-    "v": 0x4010,  # E+K
+    "v": 0x0810,  # E+K
     "w": 0x2814,  # C+D1+K+M
-    "x": 0x4D00,  # Same as uppercase
+    "x": 0x2D00,  # Same as uppercase
     "y": 0x008E,  # B+C+G1+G2+D1+D2
-    "z": 0x4409,  # Same as uppercase
+    "z": 0x2409,  # Same as uppercase
 
     # Special characters
     " ": 0x0000,  # Space (all segments off)
@@ -110,17 +110,17 @@ SEGMENTS_14 = {
     ",": 0x8000,  # Comma (same as decimal point)
     "!": 0x1206,  # B+C+I+L (exclamation)
     "?": 0x1083,  # A1+A2+B+G2+I (question mark)
-    "/": 0x4400,  # H+K (forward slash)
+    "/": 0x2400,  # J+M (forward slash)
     "\\": 0x2100, # J+M (backslash)
     "+": 0x1EC0,  # G1+G2+I+J+K+L (plus sign)
     "=": 0x00C8,  # G1+G2+D1+D2 (equals)
     "'": 0x0200,  # J (apostrophe)
     '"': 0x0500,  # H+J (quotation marks)
-    "(": 0x4900,  # H+K (left paren)
+    "(": 0x0900,  # H+K (left paren)
     ")": 0x2400,  # J+M (right paren)
     "[": 0x0039,  # A1+A2+F+E+D1+D2 (left bracket)
     "]": 0x000F,  # A1+A2+B+C+D1+D2 (right bracket)
-    "<": 0x4100,  # H+M (less than)
+    "<": 0x2100,  # H+M (less than)
     ">": 0x2400,  # J+K (greater than)
     ":": 0x1200,  # I+L (colon)
     ";": 0x9200,  # I+L+decimal (semicolon)
