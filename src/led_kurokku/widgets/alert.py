@@ -33,6 +33,7 @@ class AlertWidgetConfig(WidgetConfig):
     scroll_speed: float = 0.1
     repeat: bool = True
     sleep_before_repeat: float = 1.0
+    uppercase: bool = False  # Convert alert messages to uppercase (better for 14-segment displays)
 
 
 class AlertWidget(DisplayWidget):
@@ -70,8 +71,9 @@ class AlertWidget(DisplayWidget):
             for alert in alerts:
                 if alert.priority == 10 and not pycron.is_now("*/10 * * * *"):
                     continue  # Skip low-priority alerts if not the right time
-                if len(alert.message) <= self.tm.display_length:
-                    self.tm.show_text(alert.message)
+                message = alert.message.upper() if self.config.uppercase else alert.message
+                if len(message) <= self.tm.display_length:
+                    self.tm.show_text(message)
                     if await self._sleep_and_check_stop(alert.display_duration):
                         if alert.delete_after_display:
                             await self.redis_client.delete(alert.id)
@@ -79,7 +81,7 @@ class AlertWidget(DisplayWidget):
                 else:
                     await self.interruptable_scrolled_display(
                         self.tm.show_text,
-                        alert.message,
+                        message,
                         scroll_speed=self.config.scroll_speed,
                         repeat=self.config.repeat,
                         sleep_before_repeat=self.config.sleep_before_repeat,

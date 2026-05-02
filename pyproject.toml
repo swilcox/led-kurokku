@@ -34,6 +34,8 @@ dev = [
 
 [project.optional-dependencies]
 rpi = ["rpi-gpio>=0.7.1"]
+ht16k33 = ["smbus2>=0.4.2"]
+all-hardware = ["rpi-gpio>=0.7.1", "smbus2>=0.4.2"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

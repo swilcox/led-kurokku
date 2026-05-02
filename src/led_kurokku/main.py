@@ -12,9 +12,12 @@ from .core import display_widgets, event_listener
 from .utils.logging import setup_logging
 
 
-async def event_loop(force_console=False):
+async def event_loop(force_console=False, display_type="tm1637"):
     """
     Event loop function to run the clock application.
+
+    :param force_console: Force console driver.
+    :param display_type: Type of display hardware ("tm1637" or "ht16k33").
     """
 
     queue = asyncio.Queue()  # Create an asyncio.Queue for inter-task communication
@@ -29,7 +32,12 @@ async def event_loop(force_console=False):
         tasks = [
             event_listener(redis_client, queue, config_event, stop_event),
             display_widgets(
-                redis_client, queue, config_event, stop_event, force_console
+                redis_client,
+                queue,
+                config_event,
+                stop_event,
+                force_console=force_console,
+                display_type=display_type,
             ),
         ]
         await asyncio.gather(*tasks)  # Run tasks concurrently
@@ -71,7 +79,13 @@ def setup_signal_handlers():
 @click.option("--debug", is_flag=True, default=False)
 @click.option("--console", is_flag=True, default=False)
 @click.option("--log-file", default="")
-def main(debug, console, log_file):
+@click.option(
+    "--display-type",
+    type=click.Choice(["tm1637", "ht16k33"], case_sensitive=False),
+    default="tm1637",
+    help="Display hardware type (tm1637 or ht16k33)",
+)
+def main(debug, console, log_file, display_type):
     """
     Main function to run the clock application.
     """
@@ -81,14 +95,14 @@ def main(debug, console, log_file):
         log_file = ""  # don't log to file if forcing to console
     setup_logging(level=log_level, filename=log_file)
     logger = logging.getLogger(__name__)
-    logger.info("Starting led-kurokku application")
+    logger.info(f"Starting led-kurokku application with {display_type} display")
 
     # Register cleanup functions
     setup_signal_handlers()
     atexit.register(cleanup_gpio)
 
     try:
-        asyncio.run(event_loop(force_console=console))
+        asyncio.run(event_loop(force_console=console, display_type=display_type))
     except KeyboardInterrupt:
         logger.info("Application interrupted by user")
     except Exception as e:

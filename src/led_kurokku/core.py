@@ -7,8 +7,8 @@ from typing import Optional
 
 import redis.asyncio as redis
 from .models import ConfigSettings
-from .tm1637 import TM1637
-from .tm1637.factory import create_driver, DriverType
+from .display_factory import create_display, DisplayType
+from .tm1637.factory import DriverType
 from .tm1637.base_driver import BaseDriver
 
 from .widgets import widget_factory
@@ -39,6 +39,7 @@ async def display_widgets(
     force_console: bool = False,
     driver_type: Optional[DriverType] = None,
     driver_instance: Optional[BaseDriver] = None,
+    display_type: str = "tm1637",
 ):
     """
     Main function to display the clock and other widgets.
@@ -51,18 +52,20 @@ async def display_widgets(
     :param force_console: Force using the console driver.
     :param driver_type: Optional specific driver type to use.
     :param driver_instance: Optional existing driver instance to use.
+    :param display_type: Hardware display type ("tm1637" or "ht16k33").
     """
     config_data = ConfigSettings(**(await queue.get()))
     config_event.clear()
 
-    # Use the provided driver instance or create a new one
-    if driver_instance:
-        driver = driver_instance
-    else:
-        driver = create_driver(force_console=force_console, driver_type=driver_type)
+    # Create display using unified factory
+    tm = create_display(
+        display_type=DisplayType(display_type),
+        driver_type=driver_type,
+        force_console=force_console,
+        driver_instance=driver_instance,
+    )
 
-    tm = TM1637(driver=driver)
-
+    current_widget_type = None
     while True:
         if (
             config_data.brightness.end
@@ -76,6 +79,11 @@ async def display_widgets(
             if config_event.is_set() or stop_event.is_set():
                 break
             if widget_config.enabled:
+                # Clear display when switching between different widget types
+                # to prevent remnants from previous widget persisting
+                if current_widget_type != widget_config.widget_type:
+                    tm.clear()
+                    current_widget_type = widget_config.widget_type
                 widget = widget_factory(widget_config, tm, redis_client, config_event)
                 logger.debug(f"Displaying widget: {widget_config.widget_type}")
                 await widget.display()

@@ -70,6 +70,7 @@ async def send_alert(
     ttl: int = 300,
     display_duration: Optional[float] = None,
     priority: int = 0,
+    delete_after_display: bool = False,
 ) -> bool:
     """Send an alert to an instance."""
     try:
@@ -88,7 +89,7 @@ async def send_alert(
             message=message,
             priority=priority,
             display_duration=display_duration,
-            delete_after_display=True,
+            delete_after_display=delete_after_display,
         )
 
         # Connect to Redis

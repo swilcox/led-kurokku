@@ -30,8 +30,14 @@ def alert():
 @click.option(
     "--priority", "-p", type=int, default=0, help="Alert priority (default: 0)"
 )
+@click.option(
+    "--delete-after-display",
+    is_flag=True,
+    default=False,
+    help="Delete alert after displaying once (default: False, alert repeats until TTL expires)",
+)
 def send_alert_command(
-    clock: str, message: str, ttl: int, duration: Optional[float], priority: int
+    clock: str, message: str, ttl: int, duration: Optional[float], priority: int, delete_after_display: bool
 ):
     """Send an alert to an instance."""
     registry = load_registry()
@@ -45,7 +51,7 @@ def send_alert_command(
     display_duration = duration if duration is not None else None
 
     # Send the alert
-    success = run_async(send_alert(instance, message, ttl, display_duration, priority))
+    success = run_async(send_alert(instance, message, ttl, display_duration, priority, delete_after_display))
     if success:
         click.echo(f"Alert sent to '{clock}'.")
     else:

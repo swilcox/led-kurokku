@@ -17,17 +17,17 @@ class TestWeatherAPI:
     def test_format_temperature_for_display(self):
         """Test formatting temperatures for display."""
         # Normal temperatures
-        assert format_temperature_for_display(72.4) == "72*F"
-        assert format_temperature_for_display(72.6) == "73*F"  # Rounds up
-        assert format_temperature_for_display(0) == "0*F"
+        assert format_temperature_for_display(72.4) == "72°F"
+        assert format_temperature_for_display(72.6) == "73°F"  # Rounds up
+        assert format_temperature_for_display(0) == "0°F"
 
         # Single-digit temperatures (should have no leading space)
-        assert format_temperature_for_display(5) == "5*F"
-        assert format_temperature_for_display(-5) == "-5*F"
+        assert format_temperature_for_display(5) == "5°F"
+        assert format_temperature_for_display(-5) == "-5°F"
 
         # Extreme temperatures
-        assert format_temperature_for_display(-10) == "LO*F"  # Below -9
-        assert format_temperature_for_display(100) == "HI*F"  # Above 99
+        assert format_temperature_for_display(-10) == "LO°F"  # Below -9
+        assert format_temperature_for_display(100) == "HI°F"  # Above 99
 
     @pytest.mark.asyncio
     @patch("aiohttp.ClientSession.get")
@@ -89,7 +89,7 @@ class TestWeatherAPI:
         location = WeatherLocation(name="test", lat=0, lon=0)
         temp, data, sun_data = await get_temperature_data("test-api-key", location)
 
-        assert temp == "72*F"
+        assert temp == "72°F"
         assert data == mock_fetch.return_value
         assert sun_data is not None
         assert isinstance(sun_data["sunrise"], time)
@@ -105,7 +105,7 @@ class TestWeatherAPI:
         location = WeatherLocation(name="test", lat=0, lon=0)
         temp, data, sun_data = await get_temperature_data("test-api-key", location)
 
-        assert temp == "72*F"
+        assert temp == "72°F"
         assert data == mock_fetch.return_value
         assert sun_data is None
 

@@ -41,7 +41,7 @@ REVERSE_SEGMENTS = {
     0x6E: "Y",  # 01101110
     0x40: "-",  # 01000000
     0x08: "_",  # 00001000
-    0x63: "*",  # degree symbol
+    0x63: "°",  # degree symbol
     0x00: " ",  # space
     0x58: "c",  # 01011000
 }
